@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jatran" default="default">
+	<property name="build.dir" value="${basedir}/bin"/>
+	<property name="src.dir" value="${basedir}/src"/>
+	<property name="lib.dir" value="${basedir}/lib"/>
+	<property name="dist.dir" value="${basedir}/dist"/>
+	
+	<target name="default" depends="clean,compile">
+		<jar destfile="${dist.dir}/jatran.jar" basedir="${build.dir}"/>
+    </target>
+	
+	<target name="compile" depends="clean">
+		<java classname="org.codehaus.groovy.ant.Groovyc" fork="true" maxmemory="128M">  
+ 			<classpath>
+				<pathelement path="${classpath}"/>
+			  	<fileset dir="${lib.dir}">
+					<include name="**/*.jar"/>
+				</fileset>
+				<pathelement location="${build.dir}"/>
+			</classpath>
+			<arg value="${build.dir}"/>  
+			<arg value="${src.dir}"/>  
+			<arg value="-j"/>  
+		</java>	
+    </target>
+	
+    <target name="clean">
+    	<delete dir="${build.dir}"/>
+    	<delete dir="${dist.dir}"/>
+    	<mkdir dir="${build.dir}"/>
+    	<mkdir dir="${dist.dir}"/>
+    </target>
+
+</project>

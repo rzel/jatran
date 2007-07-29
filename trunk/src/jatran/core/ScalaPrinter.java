@@ -42,10 +42,10 @@ import antlr.collections.AST;
  * class Foo(a1:T1, a2:T2, ... an:Tn) extends Bar(a1, .., an) {
  * }
  *
- * REFERENCES:
- * http://blogs.sun.com/sundararajan/entry/scala_for_java_programmers
- * http://lamp.epfl.ch/~emir/bqbase/2005/01/21/java2scala.html
- * http://scala.sygneca.com/faqs/language
+ * References:
+ * 		http://blogs.sun.com/sundararajan/entry/scala_for_java_programmers
+ *		http://lamp.epfl.ch/~emir/bqbase/2005/01/21/java2scala.html
+ * 		http://scala.sygneca.com/faqs/language
  *
  * @author eokyere
  */
@@ -57,10 +57,15 @@ public class ScalaPrinter extends SourcePrinter {
 		br();
 
 		try {
-			//first child is ident
+			//first child is IDENT
 			AST pkg = getChild(ast, PACKAGE_DEF).getFirstChild();
 			if (!(null == pkg || pkg.getText().equals(""))) {
 				print("package ");
+				err.println("package type is: " + pkg.getType());
+				err.print("package is: ");
+				debug(pkg);
+				if (pkg.getType() == ANNOTATIONS)
+					pkg = getChild(pkg, DOT);
 				print(pkg);
 			}
 		} catch(Exception e) {
@@ -119,9 +124,6 @@ public class ScalaPrinter extends SourcePrinter {
 		//TODO: output default ctr params here
 		// print object block body
 		List<AST> ctors = getChildren(obj, CTOR_DEF);
-//		AST ctor = null;
-//		if (ctors.size() > 0)
-//			ctor = ctors.get(0);
 
 		print(deftype);
 		print(getChild(ast, IDENT));
@@ -547,8 +549,10 @@ public class ScalaPrinter extends SourcePrinter {
 		AST type = ast.getFirstChild();
 		if ("HashMap" == type.toString())
 			type.setText("Object");
-		debug(type);
+
+		AST typeargs = type.getNextSibling();
 		print(type);
+		print(typeargs);
 	}
 
 	//TODO: current!
@@ -633,16 +637,24 @@ public class ScalaPrinter extends SourcePrinter {
 	@Override protected void printNew(final AST child1, final AST child2, final AST child3) {
 		print("new ");
 		print(child1);
-		if (child2.getType() != ARRAY_DECLARATOR)
+
+		if (!(child2.getType() == ARRAY_DECLARATOR ||
+			  child2.getType() == TYPE_ARGUMENTS))
 			print("(");
+
 		print(child2);
-		if (child2.getType() != ARRAY_DECLARATOR)
+
+		if (!(child2.getType() == ARRAY_DECLARATOR ||
+				  child2.getType() == TYPE_ARGUMENTS))
 			print(")");
 		// "new String[] {...}": the stuff in {} is child3
-		if (child3 != null) {
-			print(" ");
-			print(child3);
-		}
+		if (child3 != null)
+			if (child3.getType() == ELIST && child3.getNextSibling() == null)
+				print("()");
+			else {
+				print(" ");
+				print(child3);
+			}
 	}
 
 	/**
@@ -666,7 +678,7 @@ public class ScalaPrinter extends SourcePrinter {
 			return;
 		super.setupTokenNames();
 		TOKEN_NAMES[ABSTRACT]="";
-		TOKEN_NAMES[FINAL]="final"; //TODO fix
+		TOKEN_NAMES[FINAL]="final";
 		TOKEN_NAMES[LITERAL_package]="package";
 		TOKEN_NAMES[LITERAL_import]="import";
 		TOKEN_NAMES[LITERAL_void]="unit";

@@ -340,13 +340,6 @@ public class AS2Printer extends SourcePrinter implements JavaTokenTypes {
 		print(type);
 	}
 
-	@Override protected void printDot(final AST child1, final AST child2) {
-		//always has exactly two children.
-		print(child1);
-		print(".");
-		print(child2);
-	}
-
 	@Override protected void printModifiers(final AST ast) {
 		if (hasChildren(ast)) {
 			printChildren(ast, " ");

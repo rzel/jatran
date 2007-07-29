@@ -204,7 +204,10 @@ abstract class SourcePrinter implements JavaTokenTypes {
 				printForEach(ast); break;
 
 			case STATIC_IMPORT:
-			case ANNOTATIONS:
+				break;
+
+			case ANNOTATIONS: //seems to assume package is annotations?
+				print(ast.getFirstChild());
 				break;
 
 			case VARIABLE_PARAMETER_DEF:
@@ -556,13 +559,18 @@ abstract class SourcePrinter implements JavaTokenTypes {
 
 	protected void printTypeArguments(final List<AST> list) {}
 
-	protected void printDot(final AST child1, final AST child2) {}
-
 	protected void printImplementsClause(final AST ast) {}
 
 	protected void printExtendsClause(final AST ast) {}
 
 	protected void printModifiers(final AST ast) {}
+
+	protected void printDot(final AST child1, final AST child2) {
+		//always has exactly two children.
+		print(child1);
+		print(".");
+		print(child2);
+	}
 
 	protected void printBinaryOperator(final AST ast) {
 		printWithParens(ast, ast.getFirstChild());

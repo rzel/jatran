@@ -288,8 +288,11 @@ public class ScalaPrinter extends SourcePrinter {
 		print(isFinal(ast) ? "val " : "var ");
 
 		print(getChild(ast, IDENT));
-		print(":");
-		print(getChild(ast, TYPE));
+
+		if(!untyped) {
+			print(":");
+			print(getChild(ast, TYPE));
+		}
 
 		AST assign = getChild(ast, ASSIGN);
 		if (null == assign)

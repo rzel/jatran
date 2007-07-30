@@ -16,6 +16,7 @@ def cli = new CliBuilder(usage: "jatran [args] -i src-path")
 cli.i(argName:"path", longOpt:"input", args:1, required:false, "src file or folder to transform")
 cli.o(argName:"path", longOpt:"output", args:1, required:false, "output folder; defaults to jatran-out under current dir")
 cli.l(argName:"lang", longOpt:"lang", args:1, required:false, "scala, as2, as3; defaults to scala")
+cli.u(argName:"untyped", longOpt:"untyped", args:0, required:false, "strips variable typing")
 cli.h(longOpt:"help", "this message")
 
 def options = cli.parse(args)
@@ -29,7 +30,8 @@ if (!options || !options.i || options.h) {
 def f    = new File(options.i)
 def out  = !options.o ? "jatran-out" : options.o
 def lang = !options.l ? "scala" : options.l
-
+def untyped = options.u ? true : false
+		
 switch (lang) {
 	case "as2":
 	case "as3":
@@ -40,25 +42,25 @@ switch (lang) {
 		throw new Exception("language not suppoorted... yet ;)")
 }		
 		
-parse(f, out, lang)
+parse(f, out, lang, untyped)
 
-def parse(src, out, lang) {
+def parse(src, out, lang, untyped) {
     if (src.isDirectory()) {
 	    try {
-			src.eachFileRecurse({file -> parseFile(file, out, lang)})
+			src.eachFileRecurse({file -> parseFile(file, out, lang, untyped)})
 	    } catch (Exception e) {
 	    	println e
 	    }
     } else {
     	try {
-    		parseFile(src, out, lang)
+    		parseFile(src, out, lang, untyped)
     	} catch (Exception e) {
     		println "exception while parsing: ${e}"
     	}
     }
 }
 
-def parseFile(file, out, lang) {
+def parseFile(file, out, lang, untyped) {
 	if (file.name.endsWith(".java") && 5 <= file.name.length()) {
 		try {
 			// Create a scanner that reads from the input stream passed to us
@@ -93,7 +95,7 @@ def parseFile(file, out, lang) {
 		    
 			out = new PrintStream(new FileOutputStream(fname))
 			
-			printer.print(root, out)
+			printer.print(root, out, untyped)
 		} catch (Exception e) {
 			println "parser exception: ${e}"
 			e.printStackTrace();		

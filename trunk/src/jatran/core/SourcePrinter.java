@@ -69,6 +69,11 @@ abstract class SourcePrinter implements JavaTokenTypes {
 		setupTokenNames();
 	}
 
+	public void print(final AST ast, final PrintStream stream, final boolean untyped) {
+		this.untyped = untyped;
+		print(ast, stream);
+	}
+
 	public void print(final AST ast, PrintStream stream) {
 		if (null == stream)
 			stream = System.out;
@@ -851,6 +856,7 @@ abstract class SourcePrinter implements JavaTokenTypes {
 	protected IndentingPrintStream out; //TODO: make dynamic
 	protected PrintStream err = System.out;
 	protected Stack<AST> stack = new Stack<AST>();
+	protected boolean untyped = false;
 
 	protected static String[] TOKEN_NAMES = null;
 

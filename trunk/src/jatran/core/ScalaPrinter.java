@@ -61,11 +61,6 @@ public class ScalaPrinter extends SourcePrinter {
 			AST pkg = getChild(ast, PACKAGE_DEF).getFirstChild();
 			if (!(null == pkg || pkg.getText().equals(""))) {
 				print("package ");
-				err.println("package type is: " + pkg.getType());
-				err.print("package is: ");
-				debug(pkg);
-				if (pkg.getType() == ANNOTATIONS)
-					pkg = getChild(pkg, DOT);
 				print(pkg);
 			}
 		} catch(Exception e) {
@@ -196,26 +191,46 @@ public class ScalaPrinter extends SourcePrinter {
 	@Override protected void printMethodDefinition(final AST ast) {
 		List<AST> modifiers = getChildren(getChild(ast, MODIFIERS));
 
-		if (modifiers.size() > 0) {
-			boolean t = false;
+		/**
+		 * From ScalaRef: Since Scala has no checked exceptions,
+		 * Scala methods must be annotated with one or more throws
+		 * annotations such that Java code can catch exceptions
+		 * thrown by a Scala method
+		 */
+		print(getChild(ast, LITERAL_throws));
+
+
+		if (0 < modifiers.size())
 			for (AST m : modifiers)
-				if (!(m.getType() == LITERAL_public ||
-					  m.getType() == LITERAL_static ||
-					  m.getType() == LITERAL_synchronized)){
-					print(m);
-					print(" ");
-					t = true;
+				switch(m.getType()) {
+					case LITERAL_public:
+					case LITERAL_static:
+					case LITERAL_synchronized:
+						break;
+					case LITERAL_transient:
+					case LITERAL_volatile:
+					case LITERAL_native:
+						print("@");
+					default:
+						print(m);
+						print(" ");
+						break;
 				}
 
-			if (t)
-				print(" ");
+
+
+		AST ident = getChild(ast, IDENT);
+		AST body = getChild(ast, SLIST);
+
+		if (null == body){
+			print("/**");
+			br();
+			print("//possibly abstract method");
+			br();
 		}
 
 		print("def ");
-
-		AST ident = getChild(ast, IDENT);
 		print(ident);
-
 		print(getChild(ast, PARAMETERS));
 
 		if (ast.getType() != CTOR_DEF) {
@@ -227,12 +242,12 @@ public class ScalaPrinter extends SourcePrinter {
 		}
 
 
-		//TODO see if type is void, and don't return anything in abstrat body
-
-		AST body = getChild(ast, SLIST);
-		if (null == body)
-			print(" { // abstract\n\t return null; \n}\n");
-		else {
+		if (null == body) {
+			print(" {}");
+			br();
+			print("**/");
+			br();
+		} else {
 			print(" ");
 			print(body);
 			br();
@@ -563,13 +578,6 @@ public class ScalaPrinter extends SourcePrinter {
 		print("]");
 	}
 
-	@Override protected void printDot(final AST child1, final AST child2) {
-		//always has exactly two children.
-		print(child1);
-		print(".");
-		print(child2);
-	}
-
 	@Override protected void printModifiers(final AST ast) {
 		if (hasChildren(ast)) {
 			printChildren(ast, " ");
@@ -578,7 +586,6 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	@Override protected void printTrinaryOp(final AST child1, final AST child2, final AST child3) {
-		// the dreaded trinary operator
 		print(child1);
 		print(" ? ");
 		print(child2);
@@ -587,8 +594,14 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	@Override protected void printThrows(final AST ast) {
-		print("throws ");
-		printExpressionList(ast);
+		//ast has a list of IDENTs
+		List<AST> ls = getChildren(ast, IDENT);
+		for (AST t : ls) {
+			print("@throws(classOf[");
+			print(t);
+			print("])");
+			br();
+		}
 	}
 
 	@Override protected void printStar(final AST ast) {
@@ -694,11 +707,11 @@ public class ScalaPrinter extends SourcePrinter {
 		TOKEN_NAMES[LITERAL_public]="public";
 		TOKEN_NAMES[LITERAL_protected]="protected";
 		TOKEN_NAMES[LITERAL_static]="static";
-		TOKEN_NAMES[LITERAL_transient]="";
-		TOKEN_NAMES[LITERAL_native]="";
+		TOKEN_NAMES[LITERAL_transient]="transient";
+		TOKEN_NAMES[LITERAL_native]="native";
 		TOKEN_NAMES[LITERAL_threadsafe]="";
 		TOKEN_NAMES[LITERAL_synchronized]="";
-		TOKEN_NAMES[LITERAL_volatile]="";
+		TOKEN_NAMES[LITERAL_volatile]="volatile";
 		TOKEN_NAMES[LITERAL_class]="class";
 		TOKEN_NAMES[LITERAL_extends]="extends";
 		TOKEN_NAMES[LITERAL_interface]="interface";

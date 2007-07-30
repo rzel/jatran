@@ -13,9 +13,9 @@ import jatran.antlr.JavaRecognizer
 
 def cli = new CliBuilder(usage: "jatran [args] -i src-path")
 
-cli.i(argName:"path", longOpt:"input", args:1, required:false, "src file or folder to translate")
-cli.o(argName:"path", longOpt:"output", args:1, required:false, "output folder; if this is not provided, defaults to jatran-out under current dir")
-cli.l(argName:"lang", longOpt:"lang", args:1, required:false, "as2, as3, scala for actionscript version; defaults to as2")
+cli.i(argName:"path", longOpt:"input", args:1, required:false, "src file or folder to transform")
+cli.o(argName:"path", longOpt:"output", args:1, required:false, "output folder; defaults to jatran-out under current dir")
+cli.l(argName:"lang", longOpt:"lang", args:1, required:false, "scala, as2, as3; defaults to scala")
 cli.h(longOpt:"help", "this message")
 
 def options = cli.parse(args)
@@ -28,15 +28,16 @@ if (!options || !options.i || options.h) {
 
 def f    = new File(options.i)
 def out  = !options.o ? "jatran-out" : options.o
-def lang = !options.l ? "as2" : options.l
+def lang = !options.l ? "scala" : options.l
 
 switch (lang) {
 	case "as2":
 	case "as3":
 	case "scala":
 		break;
-	default:
-		throw new Exception("language not suppoorted")
+	default: 
+		cli.usage()
+		throw new Exception("language not suppoorted... yet ;)")
 }		
 		
 parse(f, out, lang)
@@ -77,7 +78,7 @@ def parseFile(file, out, lang) {
 			AST root = factory.create(SourcePrinter.ROOT_ID,"AST ROOT")
 			root.setFirstChild(parser.getAST())
 
-			printer = "as3".equals(lang) ? new AS3Printer() : "scala".equals(lang) ? new ScalaPrinter() : new AS2Printer()
+			printer = "as2".equals(lang) ? new AS2Printer() : "as3".equals(lang) ? new AS3Printer() : new ScalaPrinter()
 
 			pkg = getPackageName(file)
 		    File f = new File(out + File.separator + pkg.replace(".", File.separator))

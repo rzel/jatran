@@ -1,4 +1,5 @@
-	package jatran.antlr;
+package jatran.antlr;
+
 // $ANTLR 2.7.7 (20060906): "java15.g" -> "JavaLexer.java"$
 
 public interface JavaTokenTypes {

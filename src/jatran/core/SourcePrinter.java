@@ -207,7 +207,7 @@ abstract class SourcePrinter implements JavaTokenTypes {
 				break;
 
 			case ANNOTATIONS: //seems to assume package is annotations?
-				print(ast.getFirstChild());
+				print(ast.getNextSibling()); // pass the dot along
 				break;
 
 			case VARIABLE_PARAMETER_DEF:
@@ -223,6 +223,7 @@ abstract class SourcePrinter implements JavaTokenTypes {
 
 			case TYPE_ARGUMENTS:
 				printTypeArguments(getChildren(ast, TYPE_ARGUMENT)); break;
+
 			case TYPE_ARGUMENT: break;
 
 
@@ -566,7 +567,6 @@ abstract class SourcePrinter implements JavaTokenTypes {
 	protected void printModifiers(final AST ast) {}
 
 	protected void printDot(final AST child1, final AST child2) {
-		//always has exactly two children.
 		print(child1);
 		print(".");
 		print(child2);

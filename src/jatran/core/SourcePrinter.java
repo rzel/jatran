@@ -108,7 +108,9 @@ abstract class SourcePrinter implements JavaTokenTypes {
 			case ROOT_ID:
 				printRoot(ast); break;
 
-			case PACKAGE_DEF: break;
+			case PACKAGE_DEF: {
+				break;
+			}
 
 			case IMPORT:
 				printImport(ast); break;
@@ -457,7 +459,6 @@ abstract class SourcePrinter implements JavaTokenTypes {
 				print(child);
 			}
 			child = child.getNextSibling();
-
 		}
 
 		return ret;
@@ -507,7 +508,7 @@ abstract class SourcePrinter implements JavaTokenTypes {
 
 	protected void printWhileLoop(final AST child1, final AST child2) {}
 
-	protected void printIfStatement(final AST child1, final AST child2, final AST child3) {}
+	protected void printIfStatement(final AST condition, final AST thenClause, final AST elseClause) {}
 
 	protected void printThrows(final AST ast) {}
 
@@ -599,7 +600,7 @@ abstract class SourcePrinter implements JavaTokenTypes {
 	public void debug(final AST t, final int level) {
 		if ( t==null )
 			return;
-		err.print("                                                  ".substring(0, level));
+		err.print("                                                                                             ".substring(0, level));
 		err.println("text:" + t.getText() + " type=" + t.getType());
 		AST child = t.getFirstChild();
 		debug(child, level+2);
@@ -678,6 +679,24 @@ abstract class SourcePrinter implements JavaTokenTypes {
 			}
 			br();
 		}
+	}
+
+	protected void closeIndent(final AST ast) {
+		if (indentable(ast)) {
+			out.decreaseIndent();
+			br();
+		}
+	}
+
+	protected void startIndent(final AST ast) {
+		if (indentable(ast)) {
+			br();
+			out.increaseIndent();
+		}
+	}
+
+	protected boolean indentable(final AST ast) {
+		return !(null == ast || ast.getType() == SLIST); //|| ast.getType() == LITERAL_if
 	}
 
 

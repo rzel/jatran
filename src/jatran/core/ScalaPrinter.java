@@ -10,14 +10,9 @@ import antlr.collections.AST;
  * 3. Move the primary constructor of class X extends Foo { ... } up.
  * 	  This yields a class X(arg1:T1,...,argsN:TN) extends Foo(...) { ... }.
  *    If you have several constructors, choose one to be the primary one.
- * 6. While you're at it, replace field declarations T x; with value or variable
- *    declarations var x:T = _;. If you don't supply a default value, your class must
- *    become abstract
  * 7. If you made Java fields just to store constructor arguments, omit those and
  *    add val to your primary constructor argument class X(arg1:T1,...,val argJ: TJ, ... argsN:TN).
  *    Sorry this does not work with mutable fields (var).
- * 9. Another thing about type declarationg: T x[] and T[] x both become x: Array[T].
- *    If you also want to initialize an array, turn T x[] = { y1,...,yN } into val x = Predef.Array[T](y1,...,yN).
  * 10. Turn all for loops into while loops. You could also use for-loops, but it takes to long to write.
  *     Pay attention to not forget the increment, decrement operations, which you of course have to move
  *     to the end of the block. for(int i = ...; test; inc) {body} becomes val i = ...; while(test) {body; inc}.
@@ -27,12 +22,8 @@ import antlr.collections.AST;
  *     move the translated thingies there (without the static modifier). Change access
  *     sites of a static method or field into qualified access ( i.e. foo becomes X.foo ).
  *     For most uses of static, this is enough, e.g. the main method.
- * 13. switch statements require more care. First turn case pat: into case pat =>.
- *     Now you should take some more involved measures: scala does not need a break,
- *     which is convenient, but an unmentioned default case will not be ignored by
- *     lead to a runtime error. If your switch does not have a default case, add one case _ =>
- *     (the right-hand side is empty.)
- * 14. remove all return statements. Those at the end you don't need, returns that are somewhere
+ *
+ * TODO: 14. (remove all return statements). (Those at the end you don't need), returns that are somewhere
  *     in the middle of your method body are either supported or unsupported, depending on whether
  *     they get translated via some syntactic quirks. Add exit flag variables in loops and stuff.
  *     The same holds for break statements in for/while loops. Get rid of those things.
@@ -334,6 +325,12 @@ public class ScalaPrinter extends SourcePrinter {
 		endBlock();
 	}
 
+
+//	 * 13. switch statements require more care. First turn case pat: into case pat =>.
+//	 *     Now you should take some more involved measures: scala does not need a break,
+//	 *     which is convenient, but an unmentioned default case will not be ignored by
+//	 *     lead to a runtime error. If your switch does not have a default case, add one case _ =>
+//	 *     (the right-hand side is empty.)
 	@Override protected void printCaseGroup(final AST ast) {
 		List<AST> cases = getChildren(ast, LITERAL_case);
 		int n = cases.size();
@@ -346,9 +343,13 @@ public class ScalaPrinter extends SourcePrinter {
 				print(getChild(cases.get(i), EXPR));
 			}
 			print(" => ");
-		} else
-			print(getChild(ast, LITERAL_default));
-
+		} else {
+			AST defcase = getChild(ast, LITERAL_default);
+			if (null == defcase)
+				printDefaultCase(null);
+			else
+				print(defcase);
+		}
 		List<AST> slist = getChildren(getChild(ast, SLIST), ALL);
 
 		//
@@ -377,23 +378,15 @@ public class ScalaPrinter extends SourcePrinter {
 		print(child1);
 	}
 
+	/**
+	 * Change for loop into while loop
+	 */
 	@Override protected void printForLoop(final AST ast) {
-		print("for (");
 
 		AST foreach = getChild(ast, FOR_EACH_CLAUSE);
-		if (foreach != null)
-			print(foreach);
-		else {
-			print(getChild(ast, FOR_INIT));
-			print("; ");
-			print(getChild(ast, FOR_CONDITION));
-			print("; ");
-			print(getChild(ast, FOR_ITERATOR));
-		}
-
-		print(") ");
 
 		AST body;
+		List<AST> slist;
 
 		if (null != foreach)
 			body = foreach.getNextSibling();
@@ -403,7 +396,35 @@ public class ScalaPrinter extends SourcePrinter {
 				body = getChild(ast, EXPR);
 		}
 
-		printIndented(body);
+		if (foreach != null) {
+			print("for (");
+			print(foreach);
+			print(") ");
+		} else {
+			print(getChild(ast, FOR_INIT));
+			br();
+			print("while (");
+			print(getChild(ast, FOR_CONDITION));
+			print(") ");
+		}
+
+		if (null == foreach) {
+			if (body.getType() == SLIST)
+				slist = getChildren(body, ALL);
+			else {
+				slist = new ArrayList<AST>();
+				slist.add(body);
+			}
+
+			startBlock();
+			for (AST s : slist)
+				print(s);
+			br();
+			print(getChild(ast, FOR_ITERATOR));
+			br();
+			endBlock();
+		} else
+			printIndented(body);
 	}
 
 	/**
@@ -530,8 +551,7 @@ public class ScalaPrinter extends SourcePrinter {
 		if (null == assign)
 			print(" = _");
 		else if (null != getChild(type, ARRAY_DECLARATOR)) {
-//			If you also want to initialize an array, turn T x[] = { y1,...,yN }
-//			into val x = Predef.Array[T](y1,...,yN).
+			// Change T x[] = { y1,...,yN } into val x = Predef.Array[T](y1,...,yN).
 			print(" = Predef.");
 			print(type);
 			printArrayInitialization(assign.getFirstChild());
@@ -657,7 +677,7 @@ public class ScalaPrinter extends SourcePrinter {
 		print(child2);
 
 		if (!(child2.getType() == ARRAY_DECLARATOR ||
-				  child2.getType() == TYPE_ARGUMENTS))
+			  child2.getType() == TYPE_ARGUMENTS))
 			print(")");
 		// "new String[] {...}": the stuff in {} is child3
 		if (child3 != null)

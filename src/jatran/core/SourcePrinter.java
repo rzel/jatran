@@ -108,9 +108,7 @@ abstract class SourcePrinter implements JavaTokenTypes {
 			case ROOT_ID:
 				printRoot(ast); break;
 
-			case PACKAGE_DEF: {
-				break;
-			}
+			case PACKAGE_DEF: break;
 
 			case IMPORT:
 				printImport(ast); break;

@@ -63,31 +63,29 @@ def parse(src, out, lang, untyped) {
 def parseFile(file, out, lang, untyped) {
 	if (file.name.endsWith(".java") && 5 <= file.name.length()) {
 		try {
-			// Create a scanner that reads from the input stream passed to us
 			input = new BufferedReader(new FileReader(file))
+
 			JavaLexer lexer = new JavaLexer(input)
 			lexer.setFilename(file.name)
 
-			// Create a parser that reads from the scanner
 			JavaRecognizer parser = new JavaRecognizer(lexer)
 			parser.setFilename(file.name)
-
-			// start parsing at the compilationUnit rule
 			parser.compilationUnit()
 
-			// Create a root AST node with id 0, and its child is the AST produced by the parser:
 			factory = new ASTFactory()
 			AST root = factory.create(SourcePrinter.ROOT_ID,"AST ROOT")
 			root.setFirstChild(parser.getAST())
 
-			printer = "as2".equals(lang) ? new AS2Printer() : "as3".equals(lang) ? new AS3Printer() : new ScalaPrinter()
+			printer = "as2".equals(lang) ? new AS2Printer() : 
+				      "as3".equals(lang) ? new AS3Printer() : 
+				      new ScalaPrinter()
 
 			pkg = getPackageName(file)
 		    File f = new File(out + File.separator + pkg.replace(".", File.separator))
 		    
 			f.mkdirs()
 		    
-		    fname = f.getAbsolutePath() + File.separator + getClassName(file) + ("scala".equals(lang) ? ".scala" : ".as")
+		    fname = f.getAbsolutePath() + File.separator + getClassName(file) + "." + ("scala".equals(lang) ? "scala" : "as")
 		    
 		    File fl = new File(fname)			
 			if (fl.exists())

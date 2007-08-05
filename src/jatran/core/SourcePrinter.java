@@ -613,8 +613,7 @@ abstract class SourcePrinter implements JavaTokenTypes {
 	 */
 	protected void startBlock() {
 		print("{");
-		br();
-		out.increaseIndent();
+		startIndent();
 	}
 
 	/**
@@ -682,17 +681,23 @@ abstract class SourcePrinter implements JavaTokenTypes {
 	}
 
 	protected void closeIndent(final AST ast) {
-		if (indentable(ast)) {
-			out.decreaseIndent();
-			br();
-		}
+		if (indentable(ast))
+			closeIndent();
+	}
+
+	protected void closeIndent() {
+		out.decreaseIndent();
+		br();
 	}
 
 	protected void startIndent(final AST ast) {
-		if (indentable(ast)) {
-			br();
-			out.increaseIndent();
-		}
+		if (indentable(ast))
+			startIndent();
+	}
+
+	protected void startIndent() {
+		br();
+		out.increaseIndent();
 	}
 
 	protected boolean indentable(final AST ast) {

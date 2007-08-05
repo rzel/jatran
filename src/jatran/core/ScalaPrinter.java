@@ -177,8 +177,6 @@ public class ScalaPrinter extends SourcePrinter {
 						break;
 				}
 
-
-
 		AST ident = getChild(ast, IDENT);
 		AST body = getChild(ast, SLIST);
 
@@ -226,42 +224,6 @@ public class ScalaPrinter extends SourcePrinter {
 		print(getChild(ast, IDENT));
 		print(":");
 		print(getChild(ast, TYPE));
-	}
-
-	@Override protected void printVariableDef(final AST ast, final AST parent) {
-		List<AST> modifiers = getChildren(getChild(ast, MODIFIERS));
-
-		if (modifiers.size() > 0) {
-			boolean t = false;
-			for (AST m : modifiers)
-				if (!(m.getType() == LITERAL_public ||
-					  m.getType() == LITERAL_static ||
-					  m.getType() == FINAL)){
-					print(m);
-					print(" ");
-					t = true;
-				}
-
-			if (t)
-				print(" ");
-		}
-
-		print(isFinal(ast) ? "val " : "var ");
-		print(getChild(ast, IDENT));
-
-		if(!untyped) {
-			print(":");
-			print(getChild(ast, TYPE));
-		}
-
-		AST assign = getChild(ast, ASSIGN);
-
-		if (null == assign)
-			print(" = _");
-		else
-			print(assign);
-
-		printSemi(parent);
 	}
 
 	/**
@@ -387,11 +349,13 @@ public class ScalaPrinter extends SourcePrinter {
 		} else
 			print(getChild(ast, LITERAL_default));
 
-		AST slist = getChild(ast, SLIST);
-		startIndent(slist);
-			for(AST s : getChildren(slist, ALL))
-				print(s);
-		closeIndent(slist);
+		List<AST> slist = getChildren(getChild(ast, SLIST), ALL);
+
+		//
+		startIndent();
+		for(AST s : slist)
+			print(s);
+		closeIndent();
 	}
 
 	private void printIndented(final AST ast) {
@@ -501,12 +465,11 @@ public class ScalaPrinter extends SourcePrinter {
 
 	//TODO: allow config to be passed from commandline
 	@Override protected void printEmptyStatement() {
-		print("");	// empty statement
 	}
 
 
 	/**
-	 * Another thing about type declaration: T x[] and T[] x both become x: Array[T].
+	 * 1. about type declaration: T x[] and T[] x both become x: Array[T].
 	 */
 	@Override protected void printArrayDeclarator(final AST ast) {
 		if (ast == null)
@@ -519,29 +482,69 @@ public class ScalaPrinter extends SourcePrinter {
 			print("Array[");
 			print(ast);
 			print("]");
+			debug(ast);
 		}
 	}
 
 	/**
-	 * If you also want to initialize an array, turn T x[] = { y1,...,yN }
-	 * into val x = Predef.Array[T](y1,...,yN).
+	 * @param child1	IDENT
+	 * @param child2	EXPR
 	 */
-	@Override protected void printArrayInitialization(final AST ast) {
-		//TODO: figure out how to pull this into where it is actually used and blank method
-		print("(");
-		printExpressionList(ast);
-		print(")");
-	}
-
 	@Override protected void printIndexOperator(final AST child1, final AST child2) {
-		print(child1);		// an IDENT
+		print(child1);
 		print("(");
-		print(child2);	// an EXPR
+		print(child2);
 		print(")");
 	}
 
-	// if we have two children, it's of the form "a=0"
-	// if just one child, it's of the form "=0" (where the lhs is above this AST).
+	@Override protected void printVariableDef(final AST ast, final AST parent) {
+		List<AST> modifiers = getChildren(getChild(ast, MODIFIERS));
+
+		if (modifiers.size() > 0) {
+			boolean t = false;
+			for (AST m : modifiers)
+				if (!(m.getType() == LITERAL_public ||
+					  m.getType() == LITERAL_static ||
+					  m.getType() == FINAL)){
+					print(m);
+					print(" ");
+					t = true;
+				}
+
+			if (t)
+				print(" ");
+		}
+
+		print(isFinal(ast) ? "val " : "var ");
+		print(getChild(ast, IDENT));
+
+		AST type = getChild(ast, TYPE);
+
+		if(!(untyped || null == type)) {
+			print(":");
+			print(type);
+		}
+
+		AST assign = getChild(ast, ASSIGN);
+
+		if (null == assign)
+			print(" = _");
+		else if (null != getChild(type, ARRAY_DECLARATOR)) {
+//			If you also want to initialize an array, turn T x[] = { y1,...,yN }
+//			into val x = Predef.Array[T](y1,...,yN).
+			print(" = Predef.");
+			print(type);
+			printArrayInitialization(assign.getFirstChild());
+		} else
+			print(assign);
+
+		printSemi(parent);
+	}
+
+	/**
+	 * If we have two children, it's of the form "a=0"
+	 * If just one child, it's of the form "=0" (where the lhs is above this AST).
+	 */
 	@Override protected void printAssignment(final AST child1, final AST child2) {
 		if (child2 != null) {
 			print(child1);
@@ -551,6 +554,12 @@ public class ScalaPrinter extends SourcePrinter {
 			print(" = ");
 			print(child1);
 		}
+	}
+
+	@Override protected void printArrayInitialization(final AST ast) {
+		print("(");
+		printExpressionList(ast);
+		print(")");
 	}
 
 	// nts: TYPE has exactly one child.

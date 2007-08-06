@@ -171,7 +171,7 @@ public class ScalaPrinter extends SourcePrinter {
 		AST ident = getChild(ast, IDENT);
 		AST body = getChild(ast, SLIST);
 
-		if (null == body){
+		if (null == body && isClass){
 			print("/**");
 			br();
 			print("//possibly abstract method");
@@ -187,18 +187,18 @@ public class ScalaPrinter extends SourcePrinter {
 			print(getChild(ast, TYPE));
 		}
 
-		print(" =");
-		if (hasModifier(ast, LITERAL_synchronized))
-			print(" synchronized");
-
-		if (null == body) {
-			print(" {}");
-			br();
-			print("**/");
-			br();
-		} else {
-			print(" ");
-			print(body);
+		if (isClass) {
+			print(" =");
+			if (hasModifier(ast, LITERAL_synchronized))
+				print(" synchronized");
+			if (null == body) {
+				print(" {}");
+				br();
+				print("**/");
+			} else {
+				print(" ");
+				print(body);
+			}
 			br();
 		}
 	}
@@ -275,8 +275,18 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	@Override protected void printIncDec(final AST ast, final AST child1) {
-		String var = child1.getText();
-		print(var + " = " + var + (ast.getText().equals("++") ? " + 1" : " - 1") );
+		err.println("incdec ---");
+		debug(ast);
+		err.println("-------------child1");
+		debug(child1);
+		//String var = child1.getText();
+
+		print(child1);
+		print(" = ");
+		print(child1);
+		print(ast.getText().equals("++") ? " + 1" : " - 1");
+
+		//print(var + " = " + var + (ast.getText().equals("++") ? " + 1" : " - 1") );
 	}
 
 
@@ -357,12 +367,6 @@ public class ScalaPrinter extends SourcePrinter {
 		for(AST s : slist)
 			print(s);
 		closeIndent();
-	}
-
-	private void printIndented(final AST ast) {
-		startIndent(ast);
-		print(ast);
-		closeIndent(ast);
 	}
 
 	// an EXPR
@@ -503,7 +507,6 @@ public class ScalaPrinter extends SourcePrinter {
 			print("Array[");
 			print(ast);
 			print("]");
-			debug(ast);
 		}
 	}
 
@@ -574,6 +577,7 @@ public class ScalaPrinter extends SourcePrinter {
 			print(" = ");
 			print(child1);
 		}
+		br();
 	}
 
 	@Override protected void printArrayInitialization(final AST ast) {
@@ -760,8 +764,16 @@ public class ScalaPrinter extends SourcePrinter {
 		TOKEN_NAMES[LITERAL_new]="new";
 	}
 
+	private void printIndented(final AST ast) {
+		startIndent(ast);
+		print(ast);
+		closeIndent(ast);
+	}
+
+	//TODO: ctors
 	private void printScalaClassOrTrait(final AST ast, final AST obj, final List<AST> imethods, final List<AST> ivars) {
-		print(ast.getType() == CLASS_DEF ? "class " : "trait ");
+		isClass = ast.getType() == CLASS_DEF;
+		print(isClass ? "class " : "trait ");
 		print(getChild(ast, IDENT));
 		print(" ");
 		print(getChild(ast, EXTENDS_CLAUSE));
@@ -822,4 +834,5 @@ public class ScalaPrinter extends SourcePrinter {
 		return false;
 	}
 
+	private boolean isClass = false;
 }

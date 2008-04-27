@@ -8,4 +8,4 @@ do
 	CP="$CP:$i"
 done
 
-java -cp $CP jatran.jatran "$@"
+java -cp $CP jatran.main.Main "$@"

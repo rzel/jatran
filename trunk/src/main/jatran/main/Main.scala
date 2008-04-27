@@ -19,12 +19,7 @@ import jatran.lexing.JavaRecognizer
  * @author eokyere
  */
 object Main {
-  def main(argv:Array[String]) {
-    val test = new File("/Users/eokyere/Desktop/pmtool/xplanner/xplanner/src/")
-
-    parse(test, "pmtool-out", false)
-    return
-    
+  def main(argv:Array[String]) {  
     object Options extends CommandLineParser {
       val input = new StringOption('i', "input", "src file or folder to transform") with AllowAll
       val output = new StringOption('o', "output", "output folder; defaults to jatran-out under current dir") with AllowAll
@@ -81,31 +76,22 @@ object Main {
         if (fl.exists())
           fl.delete()
     
-        //instead of a fileoutsteram, shd be able to insert a vfs stream here for testing
+        //TODO: insert a virtual fileoutsteram here for testing
         new ScalaPrinter().print(root, new PrintStream(new FileOutputStream(fname)), untyped)
     }
   }
   
-  def packageName(file:File):String = {
-    var s = ""
-    val e = new Exception()
-  
-    try {
-      file.lines.foreach {line => 
-        if (line != null && line.trim.startsWith("package")) {
-          val len = line.trim.length
-          s = line.trim.substring(7, len - 1).trim
-          throw(e); // trick to break out of eachLine loop; break doesn't work; and we have only one package
-        }
-      }
-    } catch {
+  private def packageName(file:File):String = {
+    file.lines.toList.filter(line => null != line && line.trim.startsWith("package")) match {
+      case x :: xs =>
+        val s = x.trim
+        s.substring(7, s.length - 1).trim
       case _ =>
+        ""
     }
-
-    s
   }
 
-  def getClassName(file:File):String = {
+  private def getClassName(file:File):String = {
     val len = file.name.lastIndexOf('.')
     file.name.substring(0, len)
   }
@@ -114,7 +100,7 @@ object Main {
 
 class RichFile(file: File) {
   def flatten : Iterable[File] = 
-    (Seq.single(file) ++ children.flatMap(child => new RichFile(child).flatten))
+    Seq.single(file) ++ children.flatMap(child => new RichFile(child).flatten)
 
   def name = file.getName()
   def lines = scala.io.Source.fromFile(file).getLines

@@ -10,10 +10,11 @@ package jemitter;
  * but we've now already indented too far.
  * It's too late to "take back" one character from the input stream.
  */
+
 import java.io.*;
 
 public class IndentingPrintStream extends PrintStream {
-	private String indent = "    ";
+	private String indent = "  ";
 	private int depth = 0;
 	private boolean indentPending = false;
 
@@ -118,9 +119,8 @@ public class IndentingPrintStream extends PrintStream {
 	 *
 	 * @param b the <code>byte</code> to write
 	 * @throws IOException if an I/O error occurs. In particular,
-	 *                     an <code>IOException</code> may be thrown if
-	 * the
-	 *                     output stream has been closed.
+	 * an <code>IOException</code> may be thrown if the output stream 
+	 * has been closed.
 	 */
 	public void write(final int b) {
 		if (hasBeenClosed) {

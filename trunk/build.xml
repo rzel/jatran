@@ -1,37 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="jatran" default="package">
-  <property name="src.dir" value="${basedir}/src"/>  
-  <property name="src.main" value="${src.dir}/main"/>
-  <property name="src.test" value="${src.dir}/test"/>
+	<property name="src.dir" value="${basedir}/src"/>
+	<property name="src.main" value="${src.dir}/main"/>
+	<property name="src.test" value="${src.dir}/test"/>
 
-  <property name="build.dir" value="${basedir}/bin"/>
-  <property name="lib.dir" value="${basedir}/lib"/>
-  <property name="dist.dir" value="${basedir}/dist"/>
+	<property name="build.dir" value="${basedir}/bin"/>
+	<property name="lib.dir" value="${basedir}/lib"/>
+	<property name="dist.dir" value="${basedir}/dist"/>
+
+	<path id="project.classpath">
+    	<fileset dir="${lib.dir}">
+      		<include name="*.jar"/>
+    	</fileset>
+	</path>
+
 	
-  <target name="package" depends="clean,compile">
-    <mkdir dir="${dist.dir}"/>
-    <jar destfile="${dist.dir}/jatran.jar" basedir="${build.dir}"/>
-  </target>
+	<!-- scala compiler command. -->
+	<taskdef resource="scala/tools/ant/antlib.xml">
+	  <classpath refid="project.classpath"/>
+	</taskdef>
 	
-  <target name="compile" depends="clean">
-    <mkdir dir="${build.dir}"/>
-    <java classname="org.codehaus.groovy.ant.Groovyc" fork="true" maxmemory="128M">  
-      <classpath>
-	<pathelement path="${classpath}"/>
-	<fileset dir="${lib.dir}">
-	  <include name="**/*.jar"/>
-	</fileset>
-	<pathelement location="${build.dir}"/>
-      </classpath>
-      <arg value="${build.dir}"/>  
-      <arg value="${src.main}"/>  
-      <arg value="-j"/>  
-    </java>	
-  </target>
-  
-  <target name="clean">
-    <delete dir="${build.dir}"/>
-    <delete dir="${dist.dir}"/>
-  </target>
-  
+	<target name="package" depends="clean,compile">
+		<mkdir dir="${dist.dir}"/>
+		<jar destfile="${dist.dir}/jatran.jar" basedir="${build.dir}"/>
+	</target>
+
+	<target name="compile" depends="compile:java,compile:scala"/>
+
+	<target name="compile:java">
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${src.main}" destdir="${build.dir}" classpathref="project.classpath">
+			<include name="**/*.java"/>
+		</javac>
+	</target>
+
+	<!-- compile -->
+	<target name="compile:scala">
+		<mkdir dir="${build.dir}"/>
+		<scalac srcdir="${src.main}" destdir="${build.dir}" classpathref="project.classpath" force="changed">
+			<include name="**/*.scala"/>
+		</scalac>
+	</target>
+
+
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+	</target>
+
 </project>

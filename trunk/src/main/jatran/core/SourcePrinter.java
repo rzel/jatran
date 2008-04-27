@@ -1,6 +1,6 @@
 package jatran.core;
 
-import jatran.antlr.JavaTokenTypes;
+import jatran.lexing.JavaTokenTypes;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ import antlr.collections.AST;
  * This method uses a precedence table to determine whether it needs to print
  * parentheses or not.
  */
-abstract class SourcePrinter implements JavaTokenTypes {
+public abstract class SourcePrinter implements JavaTokenTypes {
 	public SourcePrinter() {
 		setupTokenNames();
 	}

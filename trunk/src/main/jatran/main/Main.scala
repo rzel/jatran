@@ -20,9 +20,10 @@ import jatran.lexing.JavaRecognizer
  */
 object Main {
   def main(argv:Array[String]) {
-    val test = new File("src/main/jatran/core")
+    val test = new File("/Users/eokyere/Desktop/pmtool/xplanner/xplanner/src/")
 
-    //parse(test, "jatran-out", false)
+    parse(test, "pmtool-out", false)
+    return
     
     object Options extends CommandLineParser {
       val input = new StringOption('i', "input", "src file or folder to transform") with AllowAll
@@ -80,6 +81,7 @@ object Main {
         if (fl.exists())
           fl.delete()
     
+        //instead of a fileoutsteram, shd be able to insert a vfs stream here for testing
         new ScalaPrinter().print(root, new PrintStream(new FileOutputStream(fname)), untyped)
     }
   }
@@ -90,9 +92,9 @@ object Main {
   
     try {
       file.lines.foreach {line => 
-        if (line != null && line.trim().startsWith("package")) {
-          val len = line.trim().length()
-          s = line.trim().substring(7, len - 1).trim()
+        if (line != null && line.trim.startsWith("package")) {
+          val len = line.trim.length
+          s = line.trim.substring(7, len - 1).trim
           throw(e); // trick to break out of eachLine loop; break doesn't work; and we have only one package
         }
       }
@@ -111,15 +113,15 @@ object Main {
 
 
 class RichFile(file: File) {
+  def flatten : Iterable[File] = 
+    (Seq.single(file) ++ children.flatMap(child => new RichFile(child).flatten))
+
   def name = file.getName()
   def lines = scala.io.Source.fromFile(file).getLines
   
-  def children = new Iterable[File] {
+  private def children = new Iterable[File] {
     def elements = if (file.isDirectory) file.listFiles.elements else Iterator.empty
   }
-  
-  def flatten : Iterable[File] = 
-    (Seq.single(file) ++ children.flatMap(child => new RichFile(child).flatten))
 }
 
 object RichFile {

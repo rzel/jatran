@@ -44,10 +44,9 @@ import antlr.collections.AST;
  */
 public class ScalaPrinter extends SourcePrinter {
 	@Override protected void printRoot(final AST ast) {
-		String header = "";
-		print(header);
-
-		br();
+//		String header = "";
+//		print(header);
+//		br();
 
 		try {
 			//first child is IDENT
@@ -55,13 +54,12 @@ public class ScalaPrinter extends SourcePrinter {
 			if (!(null == pkg || pkg.getText().equals(""))) {
 				print("package ");
 				print(pkg);
+				br(2);
 			}
 		} catch(Exception e) {
 		}
 
-		br(2);
 		printImports(ast);
-		br(2);
 		print(getChild(ast, CLASS_DEF));
 		print(getChild(ast, INTERFACE_DEF));
 		br();

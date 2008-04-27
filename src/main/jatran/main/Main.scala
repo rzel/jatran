@@ -1,7 +1,9 @@
 package jatran.main
 
 import java.io._
+
 import scala.io._
+import scalax.io._
 import RichFile._
 
 import antlr.ASTFactory
@@ -17,12 +19,43 @@ import jatran.lexing.JavaRecognizer
  * @author eokyere
  */
 object Main {
-  def main(args:Array[String]) {
+  def main(argv:Array[String]) {
     val test = new File("src/main/jatran/core")
 
-    parse(test, "jatran-out", false)
+    //parse(test, "jatran-out", false)
+    
+    object Options extends CommandLineParser {
+      val input = new StringOption('i', "input", "src file or folder to transform") with AllowAll
+      val output = new StringOption('o', "output", "output folder; defaults to jatran-out under current dir") with AllowAll
+      val help = new Flag('h', "help", "Show help info") with AllowNone
+      
+      override def helpHeader = """
+          |  jatran v0.2
+          |  (c) 2006-2008 Emmanuel Okyere
+          |
+          |""".stripMargin
+    }        
+
+    Options.parseOrHelp(argv) { cmd =>
+      if(cmd(Options.help)) {
+      	 Options.showHelp(System.out)
+         return
+      }
+      
+      (cmd(Options.input), cmd(Options.output)) match {
+        case (Some(i), Some(o)) =>
+          parse(i, o, false)
+        case (Some(i), None) =>
+          parse(i, "jatran-out", false)
+        case _ =>
+          Options.showHelp(System.out)
+      }
+    }
   }
-	
+
+  def parse(src:String, out:String, untyped:Boolean) {
+    parse(new File(src), out, untyped)
+  }
   
   def parse(src:File, out:String, untyped:Boolean) {
     for (f <- src.flatten; if f.name.endsWith(".java") && 5 <= f.name.length) {

@@ -409,8 +409,14 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 	protected void printImports(final AST ast) {
 		List<AST> imports = getChildren(ast, IMPORT);
+		
+		if(imports.size() <= 0)
+			return;
+		
 		for (AST imp : imports)
 			printImport(imp);
+		
+		br(2);
 	}
 
 	/**

@@ -29,6 +29,8 @@ import antlr.collections.AST;
  *     The same holds for break statements in for/while loops. Get rid of those things.
  *
  * 15. You call super class constructor in class declaration itself.
+ * 
+ * 16. If return is only statement (without value) print it, ie. if (cond) return;
  *
  * class Foo(a1:T1, a2:T2, ... an:Tn) extends Bar(a1, .., an) {
  * }
@@ -211,7 +213,7 @@ public class ScalaPrinter extends SourcePrinter {
 
 	//TODO: final?
 	@Override protected void printParamDef(final AST ast) {
-		print(getChild(ast, MODIFIERS));
+		//print(getChild(ast, MODIFIERS));
 		print(getChild(ast, IDENT));
 		print(":");
 		print(getChild(ast, TYPE));
@@ -327,8 +329,8 @@ public class ScalaPrinter extends SourcePrinter {
 
 	// the EXPR to switch on
 	@Override protected void printSwitch(final AST ast, final AST expr) {
-		print("match ");
 		print(expr);
+		print(" match ");
 		print(" ");
 		startBlock();
 		print(getChildren(ast, CASE_GROUP));
@@ -363,11 +365,15 @@ public class ScalaPrinter extends SourcePrinter {
 		List<AST> slist = getChildren(getChild(ast, SLIST), ALL);
 
 		//
-		startIndent();
-		for(AST s : slist)
-			print(s);
-		closeIndent();
+		indentedSlist(slist);
 	}
+
+private void indentedSlist(List<AST> slist) {
+	startIndent();
+	for(AST s : slist)
+		print(s);
+	closeIndent();
+}
 
 	// an EXPR
 	@Override protected void printCaseExpression(final AST expr) {
@@ -457,10 +463,13 @@ public class ScalaPrinter extends SourcePrinter {
 		printEmptyStatement();
 	}
 
+	//TODO: change catch list to match statement
 	@Override protected void printTry(final AST ast, final AST child1) {
 		print("try ");
 		print(child1);	// an SLIST
+		print("catch {");
 		printChildren(ast, " ", LITERAL_catch);
+		print("}");
 	}
 
 	/**
@@ -468,10 +477,13 @@ public class ScalaPrinter extends SourcePrinter {
 	 * @param slist	SLIST
 	 */
 	@Override protected void printCatch(final AST param, final AST slist) {
-		print("catch (");
+		//TODO: merge with with case print stms
+		//print("catch (");
+		
+		print("case ");
 		print(param);
-		print(") ");
-		print(slist);
+		print(" => ");
+		indentedSlist(getChildren(slist, ALL));
 	}
 
 	// the first child is the "try" and the second is the SLIST
@@ -610,10 +622,11 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	@Override protected void printTrinaryOp(final AST child1, final AST child2, final AST child3) {
+		print("if(");
 		print(child1);
-		print(" ? ");
+		print(") ");
 		print(child2);
-		print(" : ");
+		print(" else ");
 		print(child3);
 	}
 

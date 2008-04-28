@@ -16,7 +16,6 @@ class ScalaPrinterTest extends  TestNGSuite {
   @BeforeSuite
   def generateStubs {
     val test = new File("src/stub")
-    println("generating before suit")
     Main.parse(test, "tmp/generated", false)
   }
   
@@ -30,8 +29,8 @@ class ScalaPrinterTest extends  TestNGSuite {
   @Test
   def fooIsAFile {
     val name = "Foo.scala"
-    val f = stub / name
-    val o = gstub / name
+    val f = stub/name
+    val o = gstub/name
     
     assert(f.isFile)
     assert(o.isFile)
@@ -42,12 +41,20 @@ class ScalaPrinterTest extends  TestNGSuite {
   @Test
   def testStaticMembersAreChangedToMembersOfCompanionObject {
     val name = "StaticMembersToCompanionObject.scala"
-    val f = stub / name
-    val o = gstub / name
+    val f = stub/name
+    val o = gstub/name
     assert(f.isFile)
     assert(o.isFile)
     
     be(f, o)
   }
 
+  @Test
+  def testForLoopsChangedToWhileLoopEquivalents {
+    val name  = "ForLoopsChangeToWhileLoops.scala"
+    val f = stub/name
+    val o = gstub/name
+    
+    be(f, o)
+  }
 }

@@ -576,6 +576,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 	protected void printModifiers(final AST ast) {}
 
+	//TODO:retrieve name of dot, so we can for instance do System.out.println -> println
 	protected void printDot(final AST child1, final AST child2) {
 		print(child1);
 		print(".");

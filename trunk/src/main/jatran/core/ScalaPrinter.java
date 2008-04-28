@@ -181,7 +181,8 @@ public class ScalaPrinter extends SourcePrinter {
 		print("def ");
 		print(ident);
 		print(getChild(ast, PARAMETERS));
-
+		
+		//TODO: if type is unit,  ():unit = { -> () {
 		if (ast.getType() != CTOR_DEF) {
 			print(":");
 			print(getChild(ast, TYPE));
@@ -202,7 +203,7 @@ public class ScalaPrinter extends SourcePrinter {
 			br();
 		}
 	}
-
+	
 	@Override protected void printParameters(final AST ast) {
 		print("(");
 		printExpressionList(ast);

@@ -675,12 +675,20 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	}
 
 	protected void print(final List<AST> list) {
-		if (list.size() > 0) {
-			for (AST ast : list) {
+		int n = list.size();
+		
+		if (n > 0) {
+			for (AST ast : list.subList(0, 1))
 				print(ast);
-				br();
+			
+			try {
+				for (AST ast : list.subList(1, n)) {
+					br();
+					print(ast);
+				}
+			} catch (IndexOutOfBoundsException e) {
+				//br();
 			}
-			br();
 		}
 	}
 

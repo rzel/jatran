@@ -1,14 +1,18 @@
 package jatran.test
 
-import java.io._
-import junitx.framework.FileAssert._
-
+import java.io.File
+import junitx.framework.FileAssert.{assertBinaryEquals => be}
 import org.testng.annotations._
+import scalax.io.Implicits._
+
 import org.scalatest.testng.TestNGSuite
 
 import jatran.main.Main
 
 class ScalaPrinterTest extends  TestNGSuite {
+  val stub = new File("src/stub/jatran/stub")
+  val gstub =  new File("tmp/generated/jatran/stub")
+  
   @BeforeSuite
   def generateStubs {
     val test = new File("src/stub")
@@ -25,13 +29,25 @@ class ScalaPrinterTest extends  TestNGSuite {
   
   @Test
   def fooIsAFile {
-    val f = new File("src/stub/jatran/stub/Foo.scala")
-    val o = new File("tmp/generated/jatran/stub/Foo.scala")
+    val name = "Foo.scala"
+    val f = stub / name
+    val o = gstub / name
     
     assert(f.isFile)
     assert(o.isFile)
     
-    assertBinaryEquals(f, o)
+    be(f, o)
+  }
+  
+  @Test
+  def testStaticMembersAreChangedToMembersOfCompanionObject {
+    val name = "StaticMembersToCompanionObject.scala"
+    val f = stub / name
+    val o = gstub / name
+    assert(f.isFile)
+    assert(o.isFile)
+    
+    be(f, o)
   }
 
 }

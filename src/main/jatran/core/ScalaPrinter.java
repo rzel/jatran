@@ -6,57 +6,61 @@ import java.util.List;
 import antlr.collections.AST;
 
 /**
- * NOTES:
- * 3. Move the primary constructor of class X extends Foo { ... } up.
- * 	  This yields a class X(arg1:T1,...,argsN:TN) extends Foo(...) { ... }.
- *    If you have several constructors, choose one to be the primary one.
- * 7. If you made Java fields just to store constructor arguments, omit those and
- *    add val to your primary constructor argument class X(arg1:T1,...,val argJ: TJ, ... argsN:TN).
- *    Sorry this does not work with mutable fields (var).
- * 10. Turn all for loops into while loops. You could also use for-loops, but it takes to long to write.
- *     Pay attention to not forget the increment, decrement operations, which you of course have to move
- *     to the end of the block. for(int i = ...; test; inc) {body} becomes val i = ...; while(test) {body; inc}.
- *     Of course this pollutes the scope with variables (which in Java you might have reused in other loops),
- *     but those you can fix by renaming later.
- * 12. If you have static stuff in a class X, create an object X of the same name and
- *     move the translated thingies there (without the static modifier). Change access
- *     sites of a static method or field into qualified access ( i.e. foo becomes X.foo ).
- *     For most uses of static, this is enough, e.g. the main method.
- *
- * TODO: 14. (remove all return statements). (Those at the end you don't need), returns that are somewhere
- *     in the middle of your method body are either supported or unsupported, depending on whether
- *     they get translated via some syntactic quirks. Add exit flag variables in loops and stuff.
- *     The same holds for break statements in for/while loops. Get rid of those things.
- *
+ * NOTES: 3. Move the primary constructor of class X extends Foo { ... } up.
+ * This yields a class X(arg1:T1,...,argsN:TN) extends Foo(...) { ... }. If you
+ * have several constructors, choose one to be the primary one. 7. If you made
+ * Java fields just to store constructor arguments, omit those and add val to
+ * your primary constructor argument class X(arg1:T1,...,val argJ: TJ, ...
+ * argsN:TN). Sorry this does not work with mutable fields (var). 10. Turn all
+ * for loops into while loops. You could also use for-loops, but it takes to
+ * long to write. Pay attention to not forget the increment, decrement
+ * operations, which you of course have to move to the end of the block. for(int
+ * i = ...; test; inc) {body} becomes val i = ...; while(test) {body; inc}. Of
+ * course this pollutes the scope with variables (which in Java you might have
+ * reused in other loops), but those you can fix by renaming later. 12. If you
+ * have static stuff in a class X, create an object X of the same name and move
+ * the translated thingies there (without the static modifier). Change access
+ * sites of a static method or field into qualified access ( i.e. foo becomes
+ * X.foo ). For most uses of static, this is enough, e.g. the main method.
+ * 
+ * TODO: 14. (remove all return statements). (Those at the end you don't need),
+ * returns that are somewhere in the middle of your method body are either
+ * supported or unsupported, depending on whether they get translated via some
+ * syntactic quirks. Add exit flag variables in loops and stuff. The same holds
+ * for break statements in for/while loops. Get rid of those things.
+ * 
  * 15. You call super class constructor in class declaration itself.
  * 
- * 16. If return is only statement (without value) print it, ie. if (cond) return;
- *
- * class Foo(a1:T1, a2:T2, ... an:Tn) extends Bar(a1, .., an) {
- * }
- *
+ * 16. If return is only statement (without value) print it, ie. if (cond)
+ * return;
+ * 
+ * class Foo(a1:T1, a2:T2, ... an:Tn) extends Bar(a1, .., an) { }
+ * 
+ * todo: print all keyworkds used as variable names as ____kwd__name
+ * 
  * References:
- * 		http://blogs.sun.com/sundararajan/entry/scala_for_java_programmers
- *		http://lamp.epfl.ch/~emir/bqbase/2005/01/21/java2scala.html
- * 		http://scala.sygneca.com/faqs/language
- *
+ * http://blogs.sun.com/sundararajan/entry/scala_for_java_programmers
+ * http://lamp.epfl.ch/~emir/bqbase/2005/01/21/java2scala.html
+ * http://scala.sygneca.com/faqs/language
+ * 
  * @author eokyere
  */
 public class ScalaPrinter extends SourcePrinter {
-	@Override protected void printRoot(final AST ast) {
-//		String header = "";
-//		print(header);
-//		br();
+	@Override
+	protected void printRoot(final AST ast) {
+		// String header = "";
+		// print(header);
+		// br();
 
 		try {
-			//first child is IDENT
+			// first child is IDENT
 			AST pkg = getChild(ast, PACKAGE_DEF).getFirstChild();
 			if (!(null == pkg || pkg.getText().equals(""))) {
 				print("package ");
 				print(pkg);
 				br(2);
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 		}
 
 		printImports(ast);
@@ -65,20 +69,21 @@ public class ScalaPrinter extends SourcePrinter {
 		br();
 	}
 
-	@Override protected void printImport(final AST ast) {
+	@Override
+	protected void printImport(final AST ast) {
 		print("import ");
 		print(ast.getFirstChild());
 		printEmptyStatement();
 		br();
 	}
 
-
 	/**
-	 * We defer printing package and import statements till we are in
-	 * the class definition level, so we can easily surround the class
-	 * with the proper package block, and add imports in the right location
+	 * We defer printing package and import statements till we are in the class
+	 * definition level, so we can easily surround the class with the proper
+	 * package block, and add imports in the right location
 	 */
-	@Override protected void printDefinition(final AST ast, final AST parent) {
+	@Override
+	protected void printDefinition(final AST ast, final AST parent) {
 		AST objectBlock = getChild(ast, OBJBLOCK);
 
 		List<AST> methods = getChildren(objectBlock, METHOD_DEF);
@@ -100,22 +105,30 @@ public class ScalaPrinter extends SourcePrinter {
 				ovars.add(v);
 			else
 				ivars.add(v);
-		
-		//if no class members, but have object members, do not print class/trait
-		isClass = ast.getType() == CLASS_DEF; //whether it is a class or trait
+
+		// if no class members, but have object members, do not print
+		// class/trait
+		isClass = ast.getType() == CLASS_DEF; // whether it is a class or
+												// trait
 		boolean hasClassMembers = 0 < imethods.size() || 0 < ivars.size();
 		boolean hasObjectMemebers = 0 < omethods.size() || 0 < ovars.size();
-		if (hasClassMembers || !hasObjectMemebers)
+		boolean extOrImp = !(null == getChild(ast, EXTENDS_CLAUSE).getFirstChild() && 
+							null == getChild(ast, IMPLEMENTS_CLAUSE).getFirstChild());
+		
+		boolean printClass = extOrImp || hasClassMembers || !hasObjectMemebers;
+
+		if (printClass)
 			printScalaClassOrTrait(ast, objectBlock, imethods, ivars);
 
 		if (hasObjectMemebers) {
-			if (hasClassMembers)
+			if (printClass)
 				br(2);
 			printScalaObjectDefinition(ast, objectBlock, omethods, ovars);
 		}
 	}
 
-	@Override protected void printExtendsClause(final AST ast) {
+	@Override
+	protected void printExtendsClause(final AST ast) {
 		if (hasChildren(ast)) {
 			print("extends ");
 			printExpressionList(ast);
@@ -123,13 +136,14 @@ public class ScalaPrinter extends SourcePrinter {
 		}
 	}
 
-
 	/**
-	 * instead of implements myInterface, write extends myInterface if its the only one.
-	 * Write with i1 ... with iN if there are several (this is a oversimplified description,
-	 * it might go wrong in some cases that I won't go into here.)
+	 * instead of implements myInterface, write extends myInterface if its the
+	 * only one. Write with i1 ... with iN if there are several (this is a
+	 * oversimplified description, it might go wrong in some cases that I won't
+	 * go into here.)
 	 */
-	@Override protected void printImplementsClause(final AST ast) {
+	@Override
+	protected void printImplementsClause(final AST ast) {
 		if (hasChildren(ast)) {
 			print(2 <= ast.getNumberOfChildren() ? "with " : "extends ");
 			printExpressionList(ast);
@@ -137,71 +151,74 @@ public class ScalaPrinter extends SourcePrinter {
 		}
 	}
 
-	@Override protected void printCtorDefinition(final AST ast) {
+	@Override
+	protected void printCtorDefinition(final AST ast) {
 		getChild(ast, IDENT).setText("this");
 		printMethodDefinition(ast);
 	}
 
-	//TODO: anonymous functions and function asst.
-	//out("// the next method throws the following errors: ");
-	//print(getChild(ast, LITERAL_throws));
-	@Override protected void printMethodDefinition(final AST ast) {
+	// TODO: anonymous functions and function asst.
+	// out("// the next method throws the following errors: ");
+	// print(getChild(ast, LITERAL_throws));
+	@Override
+	protected void printMethodDefinition(final AST ast) {
 		List<AST> modifiers = getChildren(getChild(ast, MODIFIERS));
 
 		/**
-		 * ScalaRef: Since Scala has no checked exceptions,
-		 * Scala methods must be annotated with one or more throws
-		 * annotations such that Java code can catch exceptions
-		 * thrown by a Scala method
+		 * ScalaRef: Since Scala has no checked exceptions, Scala methods must
+		 * be annotated with one or more throws annotations such that Java code
+		 * can catch exceptions thrown by a Scala method
 		 */
 		print(getChild(ast, LITERAL_throws));
 
-
 		if (0 < modifiers.size())
 			for (AST m : modifiers)
-				switch(m.getType()) {
-					case LITERAL_public:
-					case LITERAL_static:
-					case LITERAL_synchronized:
-						break;
-					case LITERAL_transient:
-					case LITERAL_volatile:
-					case LITERAL_native:
-						print("@");
-					default:
-						print(m);
-						print(" ");
-						break;
+				switch (m.getType()) {
+				case LITERAL_public:
+				case LITERAL_static:
+				case LITERAL_synchronized:
+					break;
+				case LITERAL_transient:
+				case LITERAL_volatile:
+				case LITERAL_native:
+					print("@");
+				default:
+					print(m);
+					print(" ");
+					break;
 				}
 
 		AST ident = getChild(ast, IDENT);
 		AST body = getChild(ast, SLIST);
 
-		if (null == body && isClass){
-			print("/**");
-			br();
-			print("//possibly abstract method");
-			br();
+		// TODO: is this abstract
+		if (null == body && isClass) {
+			// print("/**");
+			// br();
+			// print("//possibly abstract method");
+			// br();
 		}
 
 		print("def ");
 		print(ident);
 		print(getChild(ast, PARAMETERS));
-		
-		//TODO: if type is unit,  ():unit = { -> () {
+
+		// TODO: if type is unit, ():unit = { -> () {
 		if (ast.getType() != CTOR_DEF) {
 			print(":");
 			print(getChild(ast, TYPE));
 		}
 
 		if (isClass) {
-			print(" =");
+			//TODO: check if this is right
+			print(" ="); // TODO: move this up so if non unit, we'll print =
+							// {} else () {}
 			if (hasModifier(ast, LITERAL_synchronized))
 				print(" synchronized");
 			if (null == body) {
 				print(" {}");
 				br();
-				print("**/");
+				// print("**/");
 			} else {
 				print(" ");
 				print(body);
@@ -209,29 +226,40 @@ public class ScalaPrinter extends SourcePrinter {
 			br();
 		}
 	}
+
+	@Override
+	protected void printSuperConstructorCall(final AST ast) {
+		print("this(");
+		print(ast.getFirstChild());
+		print(")");
+	}
 	
-	@Override protected void printParameters(final AST ast) {
+	@Override
+	protected void printParameters(final AST ast) {
 		print("(");
 		printExpressionList(ast);
 		print(")");
 	}
 
-	//TODO: final?
-	@Override protected void printParamDef(final AST ast) {
-		//print(getChild(ast, MODIFIERS));
+	// TODO: final?
+	@Override
+	protected void printParamDef(final AST ast) {
+		// print(getChild(ast, MODIFIERS));
 		print(getChild(ast, IDENT));
 		print(":");
 		print(getChild(ast, TYPE));
 	}
 
 	/**
-	 * @param ast	A Java 1.5 ANNOTATION AST node
+	 * @param ast
+	 *            A Java 1.5 ANNOTATION AST node
 	 */
-	@Override protected void printAnnotation(final AST ast) {
+	@Override
+	protected void printAnnotation(final AST ast) {
 		AST ann = ast.getFirstChild();
 		String txt = ann.getText();
 
-		if(txt.equals("Override")) {
+		if (txt.equals("Override")) {
 			print("override ");
 			return;
 		}
@@ -257,9 +285,11 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	/**
-	 * @param ast	FOR_EACH_CLAUSE
+	 * @param ast
+	 *            FOR_EACH_CLAUSE
 	 */
-	@Override protected void printForEach(final AST ast) {
+	@Override
+	protected void printForEach(final AST ast) {
 		// NOTE: for each clause is parameter def and expression
 		print("val ");
 		print(getChild(getChild(ast, PARAMETER_DEF), IDENT));
@@ -267,8 +297,8 @@ public class ScalaPrinter extends SourcePrinter {
 		print(getChild(ast, EXPR));
 	}
 
-
-	@Override protected void printAnnotationMemberValuePair(final AST ast) {
+	@Override
+	protected void printAnnotationMemberValuePair(final AST ast) {
 		print(ast.getFirstChild());
 		print(" = ");
 		print(ast.getFirstChild().getNextSibling());
@@ -276,38 +306,43 @@ public class ScalaPrinter extends SourcePrinter {
 
 	/**
 	 * say goodbye to x++, change it to x and to x = x + 1;
+	 *TODO: check preAssignment
 	 */
-	@Override protected void printPostAssignment(final AST ast, final AST child1) {
+	@Override
+	protected void printPostAssignment(final AST ast, final AST child1) {
 		printIncDec(ast, child1);
 	}
 
-	@Override protected void printIncDec(final AST ast, final AST child1) {
-		err.println("incdec ---");
-		debug(ast);
-		err.println("-------------child1");
-		debug(child1);
-		//String var = child1.getText();
+	@Override
+	protected void printIncDec(final AST ast, final AST child1) {
+		// err.println("incdec ---");
+		// debug(ast);
+		// err.println("-------------child1");
+		// debug(child1);
+		// String var = child1.getText();
 
 		print(child1);
 		print(" = ");
 		print(child1);
 		print(ast.getText().equals("++") ? " + 1" : " - 1");
 
-		//print(var + " = " + var + (ast.getText().equals("++") ? " + 1" : " - 1") );
+		// print(var + " = " + var + (ast.getText().equals("++") ? " + 1" : " -
+		// 1") );
 	}
 
-
-	@Override protected void printExpressionList(final AST ast) {
+	@Override
+	protected void printExpressionList(final AST ast) {
 		printChildren(ast, ", ");
 	}
 
-
-	@Override protected void printExpression(final AST parent, final AST child1) {
+	@Override
+	protected void printExpression(final AST parent, final AST child1) {
 		print(child1);
 		printSemi(parent);
 	}
 
-	@Override protected void printStatementList(final AST ast) {
+	@Override
+	protected void printStatementList(final AST ast) {
 		startBlock();
 		if (printChildren(ast, "\n"))
 			br();
@@ -315,11 +350,16 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	/**
-	 * @param condition		EXPR
-	 * @param thenClause	SLIST, RETURN or EXPR
-	 * @param elseClause	SLIST
+	 * @param condition
+	 *            EXPR
+	 * @param thenClause
+	 *            SLIST, RETURN or EXPR
+	 * @param elseClause
+	 *            SLIST
 	 */
-	@Override protected void printIfStatement(final AST condition, final AST thenClause, final AST elseClause) {
+	@Override
+	protected void printIfStatement(final AST condition, final AST thenClause,
+			final AST elseClause) {
 		print("if (");
 		print(condition);
 		print(") ");
@@ -333,7 +373,8 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	// the EXPR to switch on
-	@Override protected void printSwitch(final AST ast, final AST expr) {
+	@Override
+	protected void printSwitch(final AST ast, final AST expr) {
 		print(expr);
 		print(" match ");
 		print(" ");
@@ -342,13 +383,17 @@ public class ScalaPrinter extends SourcePrinter {
 		endBlock();
 	}
 
-
-//	 * 13. switch statements require more care. First turn case pat: into case pat =>.
-//	 *     Now you should take some more involved measures: scala does not need a break,
-//	 *     which is convenient, but an unmentioned default case will not be ignored by
-//	 *     lead to a runtime error. If your switch does not have a default case, add one case _ =>
-//	 *     (the right-hand side is empty.)
-	@Override protected void printCaseGroup(final AST ast) {
+	// * 13. switch statements require more care. First turn case pat: into case
+	// pat =>.
+	// * Now you should take some more involved measures: scala does not need a
+	// break,
+	// * which is convenient, but an unmentioned default case will not be
+	// ignored by
+	// * lead to a runtime error. If your switch does not have a default case,
+	// add one case _ =>
+	// * (the right-hand side is empty.)
+	@Override
+	protected void printCaseGroup(final AST ast) {
 		List<AST> cases = getChildren(ast, LITERAL_case);
 		int n = cases.size();
 
@@ -373,22 +418,25 @@ public class ScalaPrinter extends SourcePrinter {
 		indentedSlist(slist);
 	}
 
-private void indentedSlist(List<AST> slist) {
-	startIndent();
-	for(AST s : slist)
-		print(s);
-	closeIndent();
-}
+	private void indentedSlist(List<AST> slist) {
+		startIndent();
+		for (AST s : slist)
+			print(s);
+		closeIndent();
+	}
 
 	// an EXPR
-	@Override protected void printCaseExpression(final AST expr) {
+	@Override
+	protected void printCaseExpression(final AST expr) {
 		print(expr);
 	}
 
 	/**
-	 * @param child1	EXPR
+	 * @param child1
+	 *            EXPR
 	 */
-	@Override protected void printDefaultCase(final AST child1) {
+	@Override
+	protected void printDefaultCase(final AST child1) {
 		print("case _ => ");
 		print(child1);
 	}
@@ -396,7 +444,8 @@ private void indentedSlist(List<AST> slist) {
 	/**
 	 * Change for loop into while loop
 	 */
-	@Override protected void printForLoop(final AST ast) {
+	@Override
+	protected void printForLoop(final AST ast) {
 
 		AST foreach = getChild(ast, FOR_EACH_CLAUSE);
 
@@ -443,10 +492,13 @@ private void indentedSlist(List<AST> slist) {
 	}
 
 	/**
-	 * @param slist			SLIST
-	 * @param condition		EXPR
+	 * @param slist
+	 *            SLIST
+	 * @param condition
+	 *            EXPR
 	 */
-	@Override protected void printDoLoop(final AST slist, final AST condition) {
+	@Override
+	protected void printDoLoop(final AST slist, final AST condition) {
 		print("do ");
 		print(slist);
 		print(" while (");
@@ -454,37 +506,43 @@ private void indentedSlist(List<AST> slist) {
 		print(");");
 	}
 
-	@Override protected void printWhileLoop(final AST child1, final AST child2) {
+	@Override
+	protected void printWhileLoop(final AST child1, final AST child2) {
 		print("while (");
-		print(child1);	// the "while" condition: an EXPR
+		print(child1); // the "while" condition: an EXPR
 		print(") ");
-		print(child2);	// an SLIST
+		print(child2); // an SLIST
 	}
 
-	@Override protected void printContinueBreak(final AST ast) {
+	@Override
+	protected void printContinueBreak(final AST ast) {
 		if (ast.getType() == LITERAL_break)
 			return;
 		printASTName(ast);
 		printEmptyStatement();
 	}
 
-	//TODO: change catch list to match statement
-	@Override protected void printTry(final AST ast, final AST child1) {
+	// TODO: change catch list to match statement
+	@Override
+	protected void printTry(final AST ast, final AST child1) {
 		print("try ");
-		print(child1);	// an SLIST
+		print(child1); // an SLIST
 		print("catch {");
 		printChildren(ast, " ", LITERAL_catch);
 		print("}");
 	}
 
 	/**
-	 * @param param	PARAMETER_DEF
-	 * @param slist	SLIST
+	 * @param param
+	 *            PARAMETER_DEF
+	 * @param slist
+	 *            SLIST
 	 */
-	@Override protected void printCatch(final AST param, final AST slist) {
-		//TODO: merge with with case print stms
-		//print("catch (");
-		
+	@Override
+	protected void printCatch(final AST param, final AST slist) {
+		// TODO: merge with with case print stms
+		// print("catch (");
+
 		print("case ");
 		print(param);
 		print(" => ");
@@ -492,28 +550,30 @@ private void indentedSlist(List<AST> slist) {
 	}
 
 	// the first child is the "try" and the second is the SLIST
-	@Override protected void printFinally(final AST child1, final AST child2) {
+	@Override
+	protected void printFinally(final AST child1, final AST child2) {
 		print(child1);
 		print(" finally ");
-		print(child2);	// an SLIST
+		print(child2); // an SLIST
 	}
 
-	@Override protected void printThrow(final AST child1) {
+	@Override
+	protected void printThrow(final AST child1) {
 		print("throw ");
 		print(child1);
 		printEmptyStatement();
 	}
 
-
-	//TODO: allow config to be passed from commandline
-	@Override protected void printEmptyStatement() {
+	// TODO: allow config to be passed from commandline
+	@Override
+	protected void printEmptyStatement() {
 	}
-
 
 	/**
 	 * 1. about type declaration: T x[] and T[] x both become x: Array[T].
 	 */
-	@Override protected void printArrayDeclarator(final AST ast) {
+	@Override
+	protected void printArrayDeclarator(final AST ast) {
 		if (ast == null)
 			print("Array");
 		else if (ast.getType() == EXPR) {
@@ -528,32 +588,35 @@ private void indentedSlist(List<AST> slist) {
 	}
 
 	/**
-	 * @param child1	IDENT
-	 * @param child2	EXPR
+	 * @param child1
+	 *            IDENT
+	 * @param child2
+	 *            EXPR
 	 */
-	@Override protected void printIndexOperator(final AST child1, final AST child2) {
+	@Override
+	protected void printIndexOperator(final AST child1, final AST child2) {
 		print(child1);
 		print("(");
 		print(child2);
 		print(")");
 	}
 
-	@Override protected void printVariableDef(final AST ast, final AST parent) {
+	@Override
+	protected void printVariableDef(final AST ast, final AST parent) {
 		List<AST> modifiers = getChildren(getChild(ast, MODIFIERS));
 
 		if (modifiers.size() > 0) {
-			boolean t = false;
+			// boolean t = false;
 			for (AST m : modifiers)
-				if (!(m.getType() == LITERAL_public ||
-					  m.getType() == LITERAL_static ||
-					  m.getType() == FINAL)){
+				if (!(m.getType() == LITERAL_public
+						|| m.getType() == LITERAL_static || m.getType() == FINAL)) {
 					print(m);
 					print(" ");
-					t = true;
+					// t = true;
 				}
 
-			if (t)
-				print(" ");
+			// if (t)
+			// print(" ");
 		}
 
 		print(isFinal(ast) ? "val " : "var ");
@@ -561,7 +624,7 @@ private void indentedSlist(List<AST> slist) {
 
 		AST type = getChild(ast, TYPE);
 
-		if(!(untyped || null == type)) {
+		if (!(untyped || null == type)) {
 			print(":");
 			print(type);
 		}
@@ -571,7 +634,8 @@ private void indentedSlist(List<AST> slist) {
 		if (null == assign)
 			print(" = _");
 		else if (null != getChild(type, ARRAY_DECLARATOR)) {
-			// Change T x[] = { y1,...,yN } into val x = Predef.Array[T](y1,...,yN).
+			// Change T x[] = { y1,...,yN } into val x =
+			// Predef.Array[T](y1,...,yN).
 			print(" = Predef.");
 			print(type);
 			printArrayInitialization(assign.getFirstChild());
@@ -582,10 +646,11 @@ private void indentedSlist(List<AST> slist) {
 	}
 
 	/**
-	 * If we have two children, it's of the form "a=0"
-	 * If just one child, it's of the form "=0" (where the lhs is above this AST).
+	 * If we have two children, it's of the form "a=0" If just one child, it's
+	 * of the form "=0" (where the lhs is above this AST).
 	 */
-	@Override protected void printAssignment(final AST child1, final AST child2) {
+	@Override
+	protected void printAssignment(final AST child1, final AST child2) {
 		if (child2 != null) {
 			print(child1);
 			print(" = ");
@@ -597,36 +662,42 @@ private void indentedSlist(List<AST> slist) {
 		br();
 	}
 
-	@Override protected void printArrayInitialization(final AST ast) {
+	@Override
+	protected void printArrayInitialization(final AST ast) {
 		print("(");
 		printExpressionList(ast);
 		print(")");
 	}
 
 	// nts: TYPE has exactly one child.
-	@Override protected void printType(final AST ast) {
+	@Override
+	protected void printType(final AST ast) {
 		AST type = ast.getFirstChild();
 		AST typeargs = type.getNextSibling();
 		print(type);
 		print(typeargs);
 	}
 
-	//TODO: current!
-	@Override protected void printTypeArguments(final List<AST> list) {
+	// TODO: current!
+	@Override
+	protected void printTypeArguments(final List<AST> list) {
 		print("[");
 		for (AST t : list)
 			print(t.getFirstChild());
 		print("]");
 	}
 
-	@Override protected void printModifiers(final AST ast) {
+	@Override
+	protected void printModifiers(final AST ast) {
 		if (hasChildren(ast)) {
 			printChildren(ast, " ");
 			print(" ");
 		}
 	}
 
-	@Override protected void printTrinaryOp(final AST child1, final AST child2, final AST child3) {
+	@Override
+	protected void printTrinaryOp(final AST child1, final AST child2,
+			final AST child3) {
 		print("if(");
 		print(child1);
 		print(") ");
@@ -635,8 +706,9 @@ private void indentedSlist(List<AST> slist) {
 		print(child3);
 	}
 
-	//ast has a list of IDENTs
-	@Override protected void printThrows(final AST ast) {
+	// ast has a list of IDENTs
+	@Override
+	protected void printThrows(final AST ast) {
 		List<AST> ls = getChildren(ast, IDENT);
 		for (AST t : ls) {
 			print("@throws(classOf[");
@@ -646,60 +718,66 @@ private void indentedSlist(List<AST> slist) {
 		}
 	}
 
-	@Override protected void printStar(final AST ast) {
+	@Override
+	protected void printStar(final AST ast) {
 		if (hasChildren(ast))
 			printBinaryOperator(ast);
 		else
 			print("_");
 	}
 
-	@Override protected void printStaticInit(final AST child1) {
-		//print("static ");
-		//printInstanceInit(child1);
+	@Override
+	protected void printStaticInit(final AST child1) {
+		// print("static ");
+		// printInstanceInit(child1);
 	}
 
-	@Override protected void printTypeCast(final AST child1, final AST child2) {
+	@Override
+	protected void printTypeCast(final AST child1, final AST child2) {
 		print(child2);
-		print(".asInstanceof[");
+		print(".asInstanceOf[");
 		print(child1);
 		print("] ");
 	}
 
-	@Override protected void printInstanceInit(final AST child1) {
+	@Override
+	protected void printInstanceInit(final AST child1) {
 		startBlock();
 		print(child1);
 		endBlock();
 	}
 
-	@Override protected void printReturn(final AST child1) {
+	@Override
+	protected void printReturn(final AST child1) {
 		print(child1);
 		printEmptyStatement();
 	}
 
-	@Override protected void printMethodCall(final AST child1, final AST child2) {
+	@Override
+	protected void printMethodCall(final AST child1, final AST child2) {
 		print(child1);
 		print("(");
 		print(child2);
 		print(")");
 	}
 
-	@Override protected void printUnary(final AST ast, final AST child1) {
+	@Override
+	protected void printUnary(final AST ast, final AST child1) {
 		printASTName(ast);
 		printWithParens(ast, child1);
 	}
 
-	@Override protected void printNew(final AST child1, final AST child2, final AST child3) {
+	@Override
+	protected void printNew(final AST child1, final AST child2, final AST child3) {
 		print("new ");
 		print(child1);
 
-		if (!(child2.getType() == ARRAY_DECLARATOR ||
-			  child2.getType() == TYPE_ARGUMENTS))
+		if (!(child2.getType() == ARRAY_DECLARATOR || child2.getType() == TYPE_ARGUMENTS))
 			print("(");
 
 		print(child2);
 
-		if (!(child2.getType() == ARRAY_DECLARATOR ||
-			  child2.getType() == TYPE_ARGUMENTS))
+		if (!(child2.getType() == ARRAY_DECLARATOR || child2.getType() == TYPE_ARGUMENTS))
 			print(")");
 		// "new String[] {...}": the stuff in {} is child3
 		if (child3 != null)
@@ -712,74 +790,75 @@ private void indentedSlist(List<AST> slist) {
 	}
 
 	/**
-	 * Note: <code>a instanceof b</code> becomes <code>a.isInstanceof[b]</code>
+	 * Note: <code>a instanceof b</code> becomes
+	 * <code>a.isInstanceOf[b]</code>
 	 */
-	@Override protected void printBinaryOperator(final AST ast) {
+	@Override
+	protected void printBinaryOperator(final AST ast) {
 		boolean b = ast.getType() == LITERAL_instanceof;
 
 		printWithParens(ast, ast.getFirstChild());
-		print(b ? ".isInstanceof[" : " " + name(ast) + " ");
+		print(b ? ".isInstanceOf[" : " " + name(ast) + " ");
 		printWithParens(ast, ast.getFirstChild().getNextSibling());
 
 		if (b)
 			print("]");
 	}
 
-
-
-	@Override protected void setupTokenNames() {
+	@Override
+	protected void setupTokenNames() {
 		if (null != TOKEN_NAMES)
 			return;
 		super.setupTokenNames();
-		TOKEN_NAMES[ABSTRACT]="abstract";
-		TOKEN_NAMES[FINAL]="final";
-		TOKEN_NAMES[LITERAL_package]="package";
-		TOKEN_NAMES[LITERAL_import]="import";
-		TOKEN_NAMES[LITERAL_void]="unit";
-		TOKEN_NAMES[LITERAL_boolean]="boolean";
-		TOKEN_NAMES[LITERAL_byte]="byte";
-		TOKEN_NAMES[LITERAL_char]="char";
-		TOKEN_NAMES[LITERAL_short]="short";
-		TOKEN_NAMES[LITERAL_int]="int";
-		TOKEN_NAMES[LITERAL_float]="float";
-		TOKEN_NAMES[LITERAL_long]="long";
-		TOKEN_NAMES[LITERAL_double]="double";
-		TOKEN_NAMES[LITERAL_private]="private";
-		TOKEN_NAMES[LITERAL_public]="public";
-		TOKEN_NAMES[LITERAL_protected]="protected";
-		TOKEN_NAMES[LITERAL_static]="static";
-		TOKEN_NAMES[LITERAL_transient]="transient";
-		TOKEN_NAMES[LITERAL_native]="native";
-		TOKEN_NAMES[LITERAL_threadsafe]="threadsafe";
-		TOKEN_NAMES[LITERAL_synchronized]="synchronized";
-		TOKEN_NAMES[LITERAL_volatile]="volatile";
-		TOKEN_NAMES[LITERAL_class]="class";
-		TOKEN_NAMES[LITERAL_extends]="extends";
-		TOKEN_NAMES[LITERAL_interface]="interface";
-		TOKEN_NAMES[LITERAL_implements]="implements";
-		TOKEN_NAMES[LITERAL_throws]="throws";
-		TOKEN_NAMES[LITERAL_if]="if";
-		TOKEN_NAMES[LITERAL_else]="else";
-		TOKEN_NAMES[LITERAL_for]="for";
-		TOKEN_NAMES[LITERAL_while]="while";
-		TOKEN_NAMES[LITERAL_do]="do";
-		TOKEN_NAMES[LITERAL_break]="break";
-		TOKEN_NAMES[LITERAL_continue]="continue";
-		TOKEN_NAMES[LITERAL_return]="return";
-		TOKEN_NAMES[LITERAL_switch]="switch";
-		TOKEN_NAMES[LITERAL_throw]="throw";
-		TOKEN_NAMES[LITERAL_case]="case";
-		TOKEN_NAMES[LITERAL_default]="default";
-		TOKEN_NAMES[LITERAL_try]="try";
-		TOKEN_NAMES[LITERAL_finally]="finally";
-		TOKEN_NAMES[LITERAL_catch]="catch";
-		TOKEN_NAMES[LITERAL_instanceof]="instanceOf";
-		TOKEN_NAMES[LITERAL_this]="this";
-		TOKEN_NAMES[LITERAL_super]="super";
-		TOKEN_NAMES[LITERAL_true]="true";
-		TOKEN_NAMES[LITERAL_false]="false";
-		TOKEN_NAMES[LITERAL_null]="null";
-		TOKEN_NAMES[LITERAL_new]="new";
+		TOKEN_NAMES[ABSTRACT] = "abstract";
+		TOKEN_NAMES[FINAL] = "final";
+		TOKEN_NAMES[LITERAL_package] = "package";
+		TOKEN_NAMES[LITERAL_import] = "import";
+		TOKEN_NAMES[LITERAL_void] = "Unit";
+		TOKEN_NAMES[LITERAL_boolean] = "boolean";
+		TOKEN_NAMES[LITERAL_byte] = "byte";
+		TOKEN_NAMES[LITERAL_char] = "char";
+		TOKEN_NAMES[LITERAL_short] = "short";
+		TOKEN_NAMES[LITERAL_int] = "Int";
+		TOKEN_NAMES[LITERAL_float] = "float";
+		TOKEN_NAMES[LITERAL_long] = "Long";
+		TOKEN_NAMES[LITERAL_double] = "Double";
+		TOKEN_NAMES[LITERAL_private] = "private";
+		TOKEN_NAMES[LITERAL_public] = "public";
+		TOKEN_NAMES[LITERAL_protected] = "protected";
+		TOKEN_NAMES[LITERAL_static] = "static";
+		TOKEN_NAMES[LITERAL_transient] = "transient";
+		TOKEN_NAMES[LITERAL_native] = "native";
+		TOKEN_NAMES[LITERAL_threadsafe] = "threadsafe";
+		TOKEN_NAMES[LITERAL_synchronized] = "synchronized";
+		TOKEN_NAMES[LITERAL_volatile] = "volatile";
+		TOKEN_NAMES[LITERAL_class] = "class";
+		TOKEN_NAMES[LITERAL_extends] = "extends";
+		TOKEN_NAMES[LITERAL_interface] = "interface";
+		TOKEN_NAMES[LITERAL_implements] = "implements";
+		TOKEN_NAMES[LITERAL_throws] = "throws";
+		TOKEN_NAMES[LITERAL_if] = "if";
+		TOKEN_NAMES[LITERAL_else] = "else";
+		TOKEN_NAMES[LITERAL_for] = "for";
+		TOKEN_NAMES[LITERAL_while] = "while";
+		TOKEN_NAMES[LITERAL_do] = "do";
+		TOKEN_NAMES[LITERAL_break] = "break";
+		TOKEN_NAMES[LITERAL_continue] = "continue";
+		TOKEN_NAMES[LITERAL_return] = "return";
+		TOKEN_NAMES[LITERAL_switch] = "switch";
+		TOKEN_NAMES[LITERAL_throw] = "throw";
+		TOKEN_NAMES[LITERAL_case] = "case";
+		TOKEN_NAMES[LITERAL_default] = "default";
+		TOKEN_NAMES[LITERAL_try] = "try";
+		TOKEN_NAMES[LITERAL_finally] = "finally";
+		TOKEN_NAMES[LITERAL_catch] = "catch";
+		TOKEN_NAMES[LITERAL_instanceof] = "instanceOf";
+		TOKEN_NAMES[LITERAL_this] = "this";
+		TOKEN_NAMES[LITERAL_super] = "super";
+		TOKEN_NAMES[LITERAL_true] = "true";
+		TOKEN_NAMES[LITERAL_false] = "false";
+		TOKEN_NAMES[LITERAL_null] = "null";
+		TOKEN_NAMES[LITERAL_new] = "new";
 	}
 
 	private void printIndented(final AST ast) {
@@ -788,8 +867,9 @@ private void indentedSlist(List<AST> slist) {
 		closeIndent(ast);
 	}
 
-	//TODO: ctors
-	private void printScalaClassOrTrait(final AST ast, final AST obj, final List<AST> imethods, final List<AST> ivars) {
+	// TODO: ctors
+	private void printScalaClassOrTrait(final AST ast, final AST obj,
+			final List<AST> imethods, final List<AST> ivars) {
 		print(isClass ? "class " : "trait ");
 		print(getChild(ast, IDENT));
 		print(" ");
@@ -800,7 +880,7 @@ private void indentedSlist(List<AST> slist) {
 		print(imethods);
 		print(getChildren(obj, INSTANCE_INIT));
 		print(ivars);
-		printChildren(obj, "\n",  CLASS_DEF);
+		printChildren(obj, "\n", CLASS_DEF);
 		endBlock();
 	}
 
@@ -808,10 +888,9 @@ private void indentedSlist(List<AST> slist) {
 		List<AST> ctors = getChildren(obj, CTOR_DEF);
 		int n = ctors.size();
 
-		if(0 < n) {
+		if (0 < n) {
 			print("/*");
 			br();
-
 			print(ctors.get(0));
 			for (int i = 1; i < n; ++i) {
 				br();
@@ -819,11 +898,12 @@ private void indentedSlist(List<AST> slist) {
 			}
 
 			print("*/");
-			br(2);
+			br();
 		}
 	}
 
-	private void printScalaObjectDefinition(final AST ast, final AST obj, final List<AST> omethods, final List<AST> ovars) {
+	private void printScalaObjectDefinition(final AST ast, final AST obj,
+			final List<AST> omethods, final List<AST> ovars) {
 		print("object ");
 		print(getChild(ast, IDENT));
 		print(" ");
@@ -846,7 +926,7 @@ private void indentedSlist(List<AST> slist) {
 		AST modifiers = getChild(method, MODIFIERS);
 
 		for (AST c : getChildren(modifiers))
-			if(c.getType() == t)
+			if (c.getType() == t)
 				return true;
 		return false;
 	}

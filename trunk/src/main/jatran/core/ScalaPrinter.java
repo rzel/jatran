@@ -100,11 +100,17 @@ public class ScalaPrinter extends SourcePrinter {
 				ovars.add(v);
 			else
 				ivars.add(v);
+		
+		//if no class members, but have object members, do not print class/trait
+		isClass = ast.getType() == CLASS_DEF; //whether it is a class or trait
+		boolean hasClassMembers = 0 < imethods.size() || 0 < ivars.size();
+		boolean hasObjectMemebers = 0 < omethods.size() || 0 < ovars.size();
+		if (hasClassMembers || !hasObjectMemebers)
+			printScalaClassOrTrait(ast, objectBlock, imethods, ivars);
 
-		printScalaClassOrTrait(ast, objectBlock, imethods, ivars);
-
-		if (0 < omethods.size() || 0 < ovars.size()) {
-			br(2);
+		if (hasObjectMemebers) {
+			if (hasClassMembers)
+				br(2);
 			printScalaObjectDefinition(ast, objectBlock, omethods, ovars);
 		}
 	}
@@ -648,8 +654,8 @@ private void indentedSlist(List<AST> slist) {
 	}
 
 	@Override protected void printStaticInit(final AST child1) {
-		print("static ");
-		printInstanceInit(child1);
+		//print("static ");
+		//printInstanceInit(child1);
 	}
 
 	@Override protected void printTypeCast(final AST child1, final AST child2) {
@@ -784,7 +790,6 @@ private void indentedSlist(List<AST> slist) {
 
 	//TODO: ctors
 	private void printScalaClassOrTrait(final AST ast, final AST obj, final List<AST> imethods, final List<AST> ivars) {
-		isClass = ast.getType() == CLASS_DEF;
 		print(isClass ? "class " : "trait ");
 		print(getChild(ast, IDENT));
 		print(" ");
@@ -823,8 +828,8 @@ private void indentedSlist(List<AST> slist) {
 		print(getChild(ast, IDENT));
 		print(" ");
 		startBlock();
-		print(getChildren(obj, STATIC_INIT));
 		print(omethods);
+		print(getChildren(obj, STATIC_INIT));
 		print(ovars);
 		endBlock();
 	}

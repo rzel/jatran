@@ -9,6 +9,8 @@ import org.scalatest.testng.TestNGSuite
 
 import jatran.main.Main
 
+import org.incava.util.diff._
+
 class ScalaPrinterTest extends  TestNGSuite {
   val stub = new File("src/stub/jatran/stub")
   val gstub =  new File("tmp/generated/jatran/stub")
@@ -20,7 +22,7 @@ class ScalaPrinterTest extends  TestNGSuite {
   }
   
   
-  @Test
+  @Test 
   def mynewTest {
     val t = true
     assert(t)
@@ -46,6 +48,11 @@ class ScalaPrinterTest extends  TestNGSuite {
     test("HelloWorldApplication.scala")
   }
   
+  @Test
+  def testExtWithCtorsNoInstMembersAndAStaticMember {
+    test("ExtWithCtorsNoInstMembersAndAStaticMember.scala")
+  }
+  
   def test(name:String) {
     val f = stub/name
     val o = gstub/name
@@ -53,6 +60,7 @@ class ScalaPrinterTest extends  TestNGSuite {
     assert(f.isFile)
     assert(o.isFile)
     
+    val diff = new FileDiff(f, o)
     be(f, o)
   }
 }

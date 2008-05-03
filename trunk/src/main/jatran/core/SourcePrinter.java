@@ -372,7 +372,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				printClassLiteral(); break;
 
 			case SUPER_CTOR_CALL:
-				printSuperConstructorCall(); break;
+				printSuperConstructorCall(ast); break;
 
 			//TODO: handle ctor calls
 			case CTOR_CALL:
@@ -494,7 +494,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 	protected void printObjectBlock(final AST ast) {}
 
-	protected void printSuperConstructorCall() {}
+	protected void printSuperConstructorCall(final AST ast) {}
 
 	protected void printClassLiteral() {}
 

@@ -8,6 +8,7 @@
 	<test verbose="3" name="ScalaPrinterTest">
 		<classes>
 			<class name="jatran.test.ScalaPrinterTest"/>
+			<class name="jatran.test.DiffTest"/>
 		</classes>
 	</test>
 </suite>

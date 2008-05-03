@@ -28,32 +28,30 @@ class ScalaPrinterTest extends  TestNGSuite {
   
   @Test
   def fooIsAFile {
-    val name = "Foo.scala"
-    val f = stub/name
-    val o = gstub/name
-    
-    assert(f.isFile)
-    assert(o.isFile)
-    
-    be(f, o)
+    test("Foo.scala")
   }
   
   @Test
   def testStaticMembersAreChangedToMembersOfCompanionObject {
-    val name = "StaticMembersToCompanionObject.scala"
-    val f = stub/name
-    val o = gstub/name
-    assert(f.isFile)
-    assert(o.isFile)
-    
-    be(f, o)
+    test("StaticMembersToCompanionObject.scala")
   }
 
   @Test
   def testForLoopsChangedToWhileLoopEquivalents {
-    val name  = "ForLoopsChangeToWhileLoops.scala"
+    test("ForLoopsChangeToWhileLoops.scala")
+  }
+  
+  @Test
+  def testHelloWorldApplication {
+    test("HelloWorldApplication.scala")
+  }
+  
+  def test(name:String) {
     val f = stub/name
     val o = gstub/name
+    
+    assert(f.isFile)
+    assert(o.isFile)
     
     be(f, o)
   }

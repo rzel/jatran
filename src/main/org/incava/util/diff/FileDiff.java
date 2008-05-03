@@ -87,5 +87,4 @@ public class FileDiff {
 			System.err.println("usage: org.incava.diffj.FileDiff from-file to-file");
 		}
 	}
-
 }

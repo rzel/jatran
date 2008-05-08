@@ -20,11 +20,13 @@ import jatran.lexing.JavaRecognizer
  */
 object Main {
   def main(argv:Array[String]) {  
-    val rife = "/Users/eokyere/Desktop/rife-source-1.6.2-snapshot-20080428"
+    //val rife = "/Users/eokyere/Desktop/rife-source-1.6.2-snapshot-20080428"
     //parse(rife + "/src", "rife-out", false)
     
-    parse("/Users/eokyere/Desktop/java-diff-1.0.5", "tmp/diff-out", false)
+    //parse("/Users/eokyere/Desktop/java-diff-1.0.5", "tmp/diff-out", false)
     
+    val openid = "/Users/eokyere/Labs/openid4java/src"
+    parse(openid, "tmp/openid-out", false)
     return
     
     object Options extends CommandLineParser {

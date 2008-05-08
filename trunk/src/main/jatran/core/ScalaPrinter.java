@@ -1,6 +1,7 @@
 package jatran.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import antlr.collections.AST;
@@ -36,7 +37,7 @@ import antlr.collections.AST;
  * 
  * class Foo(a1:T1, a2:T2, ... an:Tn) extends Bar(a1, .., an) { }
  * 
- * todo: print all keyworkds used as variable names as ____kwd__name
+ * todo: print all keyworkds used as variable names as __kwd_name
  * 
  * References:
  * http://blogs.sun.com/sundararajan/entry/scala_for_java_programmers
@@ -112,8 +113,13 @@ public class ScalaPrinter extends SourcePrinter {
 												// trait
 		boolean hasClassMembers = 0 < imethods.size() || 0 < ivars.size();
 		boolean hasObjectMemebers = 0 < omethods.size() || 0 < ovars.size();
-		boolean extOrImp = !(null == getChild(ast, EXTENDS_CLAUSE).getFirstChild() && 
-							null == getChild(ast, IMPLEMENTS_CLAUSE).getFirstChild());
+		boolean extOrImp = false;
+		try {
+			extOrImp = null != getChild(ast, EXTENDS_CLAUSE).getFirstChild() || 
+					   null != getChild(ast, IMPLEMENTS_CLAUSE).getFirstChild();
+		} catch (NullPointerException e) {
+			extOrImp = false;
+		}
 		
 		boolean printClass = extOrImp || hasClassMembers || !hasObjectMemebers;
 
@@ -210,7 +216,6 @@ public class ScalaPrinter extends SourcePrinter {
 		}
 
 		if (isClass) {
-			//TODO: check if this is right
 			print(" ="); // TODO: move this up so if non unit, we'll print =
 							// {} else () {}
 			if (hasModifier(ast, LITERAL_synchronized))
@@ -420,8 +425,9 @@ public class ScalaPrinter extends SourcePrinter {
 
 	private void indentedSlist(List<AST> slist) {
 		startIndent();
-		for (AST s : slist)
+		for (AST s : slist) {
 			print(s);
+		}
 		closeIndent();
 	}
 
@@ -522,12 +528,11 @@ public class ScalaPrinter extends SourcePrinter {
 		printEmptyStatement();
 	}
 
-	// TODO: change catch list to match statement
 	@Override
 	protected void printTry(final AST ast, final AST child1) {
 		print("try ");
 		print(child1); // an SLIST
-		print("catch {");
+		print(" catch {");
 		printChildren(ast, " ", LITERAL_catch);
 		print("}");
 	}
@@ -542,11 +547,14 @@ public class ScalaPrinter extends SourcePrinter {
 	protected void printCatch(final AST param, final AST slist) {
 		// TODO: merge with with case print stms
 		// print("catch (");
-
+		startIndent();
 		print("case ");
 		print(param);
 		print(" => ");
-		indentedSlist(getChildren(slist, ALL));
+		startIndent();
+		printChildren(slist, "\n", ALL);
+		closeIndent();
+		closeIndent();
 	}
 
 	// the first child is the "try" and the second is the SLIST
@@ -612,12 +620,11 @@ public class ScalaPrinter extends SourcePrinter {
 						|| m.getType() == LITERAL_static || m.getType() == FINAL)) {
 					print(m);
 					print(" ");
-					// t = true;
 				}
-
-			// if (t)
-			// print(" ");
 		}
+		
+//		if (VARIABLE_DEF != previousType && SLIST != previousType)
+//			br();
 
 		print(isFinal(ast) ? "val " : "var ");
 		print(getChild(ast, IDENT));
@@ -630,16 +637,17 @@ public class ScalaPrinter extends SourcePrinter {
 		}
 
 		AST assign = getChild(ast, ASSIGN);
-
+		
+		//TODO: get type here and do assignment to appropriate type
 		if (null == assign)
 			print(" = _");
-		else if (null != getChild(type, ARRAY_DECLARATOR)) {
+		/*else if (null != getChild(type, ARRAY_DECLARATOR)) {
 			// Change T x[] = { y1,...,yN } into val x =
-			// Predef.Array[T](y1,...,yN).
+			// Array[T](y1,...,yN).
 			print(" = Predef.");
 			print(type);
 			printArrayInitialization(assign.getFirstChild());
-		} else
+		}*/else
 			print(assign);
 
 		printSemi(parent);
@@ -655,11 +663,11 @@ public class ScalaPrinter extends SourcePrinter {
 			print(child1);
 			print(" = ");
 			print(child2);
+			br();
 		} else {
 			print(" = ");
 			print(child1);
 		}
-		br();
 	}
 
 	@Override
@@ -678,7 +686,6 @@ public class ScalaPrinter extends SourcePrinter {
 		print(typeargs);
 	}
 
-	// TODO: current!
 	@Override
 	protected void printTypeArguments(final List<AST> list) {
 		print("[");
@@ -698,7 +705,7 @@ public class ScalaPrinter extends SourcePrinter {
 	@Override
 	protected void printTrinaryOp(final AST child1, final AST child2,
 			final AST child3) {
-		print("if(");
+		print("if (");
 		print(child1);
 		print(") ");
 		print(child2);
@@ -767,26 +774,41 @@ public class ScalaPrinter extends SourcePrinter {
 		printWithParens(ast, child1);
 	}
 
+	/**
+	 * @param child1 IDENT
+	 * @param child2 can be an ARRAY_DECLARATOR, or EXPR
+	 * @param child3 an array initializer (ARRAY_INIT); so, in new String[] {...}, the stuff in {} is child3
+	 */
 	@Override
 	protected void printNew(final AST child1, final AST child2, final AST child3) {
-		print("new ");
-		print(child1);
+		//TODO: change this to List(a,b,c).toArray if 3 is blah
+		boolean isArray = child2.getType() == ARRAY_DECLARATOR;
+		boolean simple = !(isArray || child2.getType() == TYPE_ARGUMENTS);
 
-		if (!(child2.getType() == ARRAY_DECLARATOR || child2.getType() == TYPE_ARGUMENTS))
+		print("new ");
+		
+		if (isArray) {
+			print("Array[");
+			print(child1);
+			print("]");
+		} else {
+			print(child1);
+		}
+		
+		if (simple)
 			print("(");
 
-		print(child2);
+		if (!isArray)
+			print(child2);
 
-		if (!(child2.getType() == ARRAY_DECLARATOR || child2.getType() == TYPE_ARGUMENTS))
+		if (simple)
 			print(")");
-		// "new String[] {...}": the stuff in {} is child3
-		if (child3 != null)
-			if (child3.getType() == ELIST && child3.getNextSibling() == null)
+		
+		if (null != child3)
+			if (ELIST == child3.getType() && null == child3.getNextSibling())
 				print("()");
-			else {
-				print(" ");
+			else 
 				print(child3);
-			}
 	}
 
 	/**
@@ -861,6 +883,15 @@ public class ScalaPrinter extends SourcePrinter {
 		TOKEN_NAMES[LITERAL_new] = "new";
 	}
 
+	@Override
+	protected void setupKeywords() {
+		KEYWORDS = new HashMap<String, Integer>();
+		KEYWORDS.put("type", 1);
+		KEYWORDS.put("val", 1);
+	}
+	
+
+	
 	private void printIndented(final AST ast) {
 		startIndent(ast);
 		print(ast);

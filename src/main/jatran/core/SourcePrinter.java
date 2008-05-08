@@ -4,7 +4,9 @@ import jatran.lexing.JavaTokenTypes;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import jemitter.IndentingPrintStream;
@@ -67,6 +69,7 @@ import antlr.collections.AST;
 public abstract class SourcePrinter implements JavaTokenTypes {
 	public SourcePrinter() {
 		setupTokenNames();
+		setupKeywords();
 	}
 
 	public void print(final AST ast, final PrintStream stream, final boolean untyped) {
@@ -348,6 +351,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				printIfStatement(child1, child2, child3); break;
 
 			case LITERAL_while:
+				br();
 				printWhileLoop(child1, child2); break;
 
 			case LITERAL_do:
@@ -384,8 +388,10 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 			default:
 				err.println("Invalid type:" + ast.getType()); break;
 		}
-
+		
 		stack.pop();
+		previousType = ast.getType();
+		brApplied = false;
 	}
 
 	protected void printAnnotation(final AST ast) {}
@@ -594,6 +600,12 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	}
 
 	protected void printASTText(final AST ast) {
+		String s = ast.getText().trim();
+		if (!(null == KEYWORDS.get(s))) {
+			print("__kwd_" + s);
+			return;
+		}
+		
 		print(ast.getText());
 	}
 
@@ -625,6 +637,8 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	 *  Starts a block by decreasing the indent level and printing "}"
 	 */
 	protected void endBlock() {
+		if (!brApplied)
+			br();
 		out.decreaseIndent();
 		print("}");
 	}
@@ -640,6 +654,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	protected void br(final int n) {
 		for (int i = 0; i < n; ++i)
 			out.println();
+		brApplied = true;
 	}
 
 	/**
@@ -835,6 +850,10 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 		return -2;
 	}
 
+	protected void setupKeywords() {
+		KEYWORDS = new HashMap<String, Integer>();
+	}
+	
 	// Map each AST token type to a String
 	protected void setupTokenNames() {
 		if (null != TOKEN_NAMES)
@@ -896,5 +915,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	protected boolean untyped = false;
 
 	protected static String[] TOKEN_NAMES = null;
-
+	protected static Map<String, Integer> KEYWORDS = null;
+	protected int previousType = -1;
+	protected boolean brApplied = false;
 }

@@ -1,4 +1,4 @@
-package org.incava.util.diff;
+package jatran.stub;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,25 +7,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class FileDiff {
-	public final List<Difference> diffs;
+import org.incava.util.diff.*;
 
+public class FileDiff {
 	public FileDiff(String fromFile, String toFile) {
 		this(new File(fromFile), new File(toFile));
 	}
 
 	public FileDiff(File f1, File f2) {
-		this(f1, f2, true);
-	}
-	
-	public FileDiff(File f1, File f2, Boolean newlines) {
-		String[] aLines = read(f1, newlines);
-		String[] bLines = read(f2, newlines);
-		
-		diffs = (new Diff(aLines, bLines)).diff();
-		
+		String[] aLines = read(f1);
+		String[] bLines = read(f2);
+		List<Difference> diffs = (new Diff(aLines, bLines)).diff();
+
 		Iterator<Difference> it = diffs.iterator();
-		
 		while (it.hasNext()) {
 			Difference diff = (Difference) it.next();
 			int delStart = diff.getDeletedStart();
@@ -51,7 +45,6 @@ public class FileDiff {
 			}
 		}
 	}
-	
 
 	protected void printLines(int start, int end, String ind, String[] lines) {
 		for (int lnum = start; lnum <= end; ++lnum) {
@@ -74,17 +67,12 @@ public class FileDiff {
 	}
 
 	private String[] read(File file) {
-		return read(file, true);
-	}
-	
-	private String[] read(File file, Boolean newlines) {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			List<String> contents = new ArrayList<String>();
 			String in;
 			while ((in = br.readLine()) != null) {
-				if (newlines || !(!newlines && "".equals(in.trim())))
-					contents.add(in);
+				contents.add(in);
 			}
 			return contents.toArray(new String[] {});
 		} catch (Exception e) {

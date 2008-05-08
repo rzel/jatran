@@ -53,6 +53,11 @@ class ScalaPrinterTest extends  TestNGSuite {
     test("ExtWithCtorsNoInstMembersAndAStaticMember.scala")
   }
   
+  @Test
+  def testDiffFileClass {
+    test("FileDiff.scala")
+  }
+  
   def test(name:String) {
     val f = stub/name
     val o = gstub/name
@@ -60,7 +65,7 @@ class ScalaPrinterTest extends  TestNGSuite {
     assert(f.isFile)
     assert(o.isFile)
     
-    val diff = new FileDiff(f, o)
-    be(f, o)
+    val diff = new FileDiff(f, o, false) //diff the files and discard newlines
+    assert(0 == diff.diffs.size())
   }
 }

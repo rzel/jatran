@@ -87,7 +87,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	}
 
 	protected void print (final AST ast) {
-		if (ast == null)
+		if (null == ast)
 			return;
 
 		AST parent = null;
@@ -160,6 +160,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				printAssignment(child1, child2); break;
 
 			case EXPR:
+				//err.println("<<<__________________________>> yayayay");
 				printExpression(parent, child1); break;
 
 			case ARRAY_INIT:
@@ -327,8 +328,13 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 			case LITERAL_false:
 			case LITERAL_null:
 			case SEMI:
+				printASTName(ast); break;
+				
+				
 			case LITERAL_this:
 			case LITERAL_super:
+				err.println("<<<<<<<<<<<<<<<<<<<<<<<<<printing super or this");
+				err.println(name(ast));
 				printASTName(ast); break;
 
 			case LITERAL_continue:
@@ -380,7 +386,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 			//TODO: handle ctor calls
 			case CTOR_CALL:
-				break;
+				printConstructorCall(ast); break;
 
 			case SL_COMMENT:
 			case ML_COMMENT: break;
@@ -501,6 +507,8 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	protected void printObjectBlock(final AST ast) {}
 
 	protected void printSuperConstructorCall(final AST ast) {}
+	
+	protected void printConstructorCall(final AST ast) {}
 
 	protected void printClassLiteral() {}
 

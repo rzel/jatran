@@ -73,10 +73,6 @@ public class FileDiff {
 		return buf.toString();
 	}
 
-	private String[] read(File file) {
-		return read(file, true);
-	}
-	
 	private String[] read(File file, Boolean newlines) {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
@@ -84,7 +80,7 @@ public class FileDiff {
 			String in;
 			while ((in = br.readLine()) != null) {
 				if (newlines || !(!newlines && "".equals(in.trim())))
-					contents.add(in);
+					contents.add(in.trim());
 			}
 			return contents.toArray(new String[] {});
 		} catch (Exception e) {

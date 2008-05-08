@@ -19,8 +19,8 @@ class FileDiff {
     var aLines:Array[String] = read(f1)
     var bLines:Array[String] = read(f2)
     var diffs:List[Difference] = new Diff(aLines, bLines).diff()
-
     var it:Iterator[Difference] = diffs.iterator()
+
     while (it.hasNext()) {
       var diff:Difference = it.next().asInstanceOf[Difference]
       var delStart:Int = diff.getDeletedStart()
@@ -57,7 +57,7 @@ class FileDiff {
   protected def toString(start:Int, end:Int):String = {
     var buf:StringBuffer = new StringBuffer()
     
-    buf.append(if (end == Difference.NONE) start else (1 + start)))
+    buf.append(if (end == Difference.NONE) start else (1 + start))
 
     if (end != Difference.NONE && start != end) {
       buf.append(",").append(1 + end)
@@ -85,7 +85,7 @@ class FileDiff {
 }
 
 object FileDiff {
-  def main(args:Array[String]) {
+  def main(args:Array[String]):Unit = {
     if (args.length == 2) {
       new FileDiff(args(0), args(1))
     } else {

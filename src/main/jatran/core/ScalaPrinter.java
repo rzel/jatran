@@ -209,13 +209,18 @@ public class ScalaPrinter extends SourcePrinter {
 		print(ident);
 		print(getChild(ast, PARAMETERS));
 
+
+
 		// TODO: if type is unit, ():unit = { -> () {
-		if (ast.getType() != CTOR_DEF) {
-			print(":");
-			print(getChild(ast, TYPE));
+		if (!(ast.getType() == CTOR_DEF)) {
+//			if (!getChild(ast, TYPE).getFirstChild().getText().equals("void")) {
+				print(":");
+				print(getChild(ast, TYPE));
+//			}
 		}
 
 		if (isClass) {
+			//if (!(ast.getType() == CTOR_DEF) && !getChild(ast, TYPE).getFirstChild().getText().equals("void"))
 			print(" ="); // TODO: move this up so if non unit, we'll print =
 							// {} else () {}
 			if (hasModifier(ast, LITERAL_synchronized))
@@ -234,6 +239,11 @@ public class ScalaPrinter extends SourcePrinter {
 
 	@Override
 	protected void printSuperConstructorCall(final AST ast) {
+		printConstructorCall(ast);
+	}
+	
+	@Override
+	protected void printConstructorCall(final AST ast) {
 		print("this(");
 		print(ast.getFirstChild());
 		print(")");
@@ -342,6 +352,8 @@ public class ScalaPrinter extends SourcePrinter {
 
 	@Override
 	protected void printExpression(final AST parent, final AST child1) {
+		//TODO: add in check to prevent forced break, as this might be in a 
+		//TODO: check exp after printing, and see if next is close brack, then don't br()
 		print(child1);
 		printSemi(parent);
 	}
@@ -473,7 +485,7 @@ public class ScalaPrinter extends SourcePrinter {
 		} else {
 			print(getChild(ast, FOR_INIT));
 			br();
-			print("while (");
+			print("while (");//TODO: watch for complex statement, so line breaks are not printed here
 			print(getChild(ast, FOR_CONDITION));
 			print(") ");
 		}
@@ -515,6 +527,8 @@ public class ScalaPrinter extends SourcePrinter {
 	@Override
 	protected void printWhileLoop(final AST child1, final AST child2) {
 		print("while (");
+		err.println("<<><><><><><><><><><><>< " + child1.getType());
+		//doNotBreakAfterPrint = true;
 		print(child1); // the "while" condition: an EXPR
 		print(") ");
 		print(child2); // an SLIST
@@ -596,10 +610,8 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	/**
-	 * @param child1
-	 *            IDENT
-	 * @param child2
-	 *            EXPR
+	 * @param child1 IDENT
+	 * @param child2 EXPR
 	 */
 	@Override
 	protected void printIndexOperator(final AST child1, final AST child2) {
@@ -640,7 +652,7 @@ public class ScalaPrinter extends SourcePrinter {
 		
 		//TODO: get type here and do assignment to appropriate type
 		if (null == assign)
-			print(" = _");
+			print(" = null");
 		/*else if (null != getChild(type, ARRAY_DECLARATOR)) {
 			// Change T x[] = { y1,...,yN } into val x =
 			// Array[T](y1,...,yN).
@@ -663,7 +675,6 @@ public class ScalaPrinter extends SourcePrinter {
 			print(child1);
 			print(" = ");
 			print(child2);
-			br();
 		} else {
 			print(" = ");
 			print(child1);
@@ -710,7 +721,16 @@ public class ScalaPrinter extends SourcePrinter {
 		print(") ");
 		print(child2);
 		print(" else ");
-		print(child3);
+
+		int t = child3.getType();
+		boolean printBrack = PLUS == t || MINUS == t || DIV == t || MOD == t;
+		
+		if (printBrack) {
+			print("(");
+			print(child3);
+			print(")");
+		} else
+			print(child3);
 	}
 
 	// ast has a list of IDENTs

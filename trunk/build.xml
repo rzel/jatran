@@ -27,7 +27,7 @@
 	  <classpath refid="project.classpath"/>
 	</taskdef>
 	
-	<target name="package" depends="clean,compile">
+	<target name="package" depends="clean,compile,test">
 		<mkdir dir="${dist.dir}"/>
 		<jar destfile="${dist.dir}/jatran.jar" basedir="${build.dir}"/>
 	</target>
@@ -77,16 +77,6 @@
 	
 	<target name="test" depends="compile:tests">
 		<mkdir dir="${test.dir}"/>
-		<!--
-		<taskdef name="testng" classname="com.beust.testng.TestNGAntTask" classpathref="test.classpath"/>
-		<taskdef name="scalatest" classname="org.scalatest.tools.ScalaTestTask" classpathref="test.classpath"/>
-		
-		<scalatest>
-			<runpath>
-				<pathelement path="test.classpath"/>
-			</runpath>
-		</scalatest>
-		-->
 		
 		<java classname="org.testng.TestNG" fork="yes" failonerror="yes">
 			<classpath refid="project.classpath"/>

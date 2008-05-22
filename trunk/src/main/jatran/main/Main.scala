@@ -18,14 +18,12 @@ import jatran.lexing.JavaRecognizer
 /**
  * @author eokyere
  */
-object Main {
+object Main extends Main {
   def main(argv:Array[String]) {  
     object Options extends CommandLineParser {
       val input = new StringOption('i', "input", "src file or folder to transform") with AllowAll
       val output = new StringOption('o', "output", "output folder; defaults to jatran-out under current dir") with AllowAll
       val help = new Flag('h', "help", "Show help info") with AllowNone
-      
-      
       
       override def helpHeader = """
           |  jatran v0.2
@@ -50,7 +48,9 @@ object Main {
       }
     }
   }
+}
 
+class Main {
   def parse(src:String, out:String, untyped:Boolean) {
     parse(new File(src), out, untyped)
   }
@@ -98,7 +98,6 @@ object Main {
     file.name.substring(0, len)
   }
 }
-
 
 class RichFile(file: File) {
   def flatten : Iterable[File] = 

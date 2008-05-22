@@ -22,45 +22,41 @@ class ScalaPrinterTest extends  TestNGSuite {
   }
   
   
-  @Test 
-  def mynewTest {
+  @Test def mynewTest {
     val t = true
     assert(t)
   }
   
-  @Test
-  def fooIsAFile {
+  @Test def fooIsAFile {
     test("Foo.scala")
   }
   
-  @Test
-  def staticMembersAreChangedToMembersOfCompanionObject {
+  @Test def staticMembersAreChangedToMembersOfCompanionObject {
     test("StaticMembersToCompanionObject.scala")
   }
 
-  @Test
-  def forLoopsChangedToWhileLoopEquivalents {
+  @Test def forLoopsChangedToWhileLoopEquivalents {
     test("ForLoopsChangeToWhileLoops.scala")
   }
   
-  @Test
-  def helloWorldApplication {
+  @Test def helloWorldApplication {
     test("HelloWorldApplication.scala")
   }
   
-  @Test
-  def extensionWithCtorsNoInstMembersAndAStaticMember {
+  @Test def extensionWithCtorsNoInstMembersAndAStaticMember {
     test("ExtWithCtorsNoInstMembersAndAStaticMember.scala")
   }
   
-  @Test
-  def testDiffFileClass {
+  @Test def testDiffFileClass {
     test("FileDiff.scala")
   }
   
-  @Test
-  def literalClassToClassOf {
+  @Test def literalClassToClassOf {
     test("LiteralClassToClassOf.scala")
+  }
+  
+  @Test def upperBoundFormalTypeParameter {
+    test("FooUpperBoundFTP.scala")
   }
   
   def test(name:String) {

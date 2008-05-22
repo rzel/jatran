@@ -160,7 +160,6 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				printAssignment(child1, child2); break;
 
 			case EXPR:
-				//err.println("<<<__________________________>> yayayay");
 				printExpression(parent, child1); break;
 
 			case ARRAY_INIT:
@@ -222,13 +221,21 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 			case VARIABLE_PARAMETER_DEF:
 			case ENUM_DEF:
 			case ENUM_CONSTANT_DEF:
-			case TYPE_PARAMETERS:
-			case TYPE_PARAMETER:
-			case WILDCARD_TYPE:
-			case TYPE_UPPER_BOUNDS:
-			case TYPE_LOWER_BOUNDS:
 			case TRIPLE_DOT:
 				 debug(ast); break; //TODO
+
+			case TYPE_PARAMETERS:
+				printTypeParameters(ast); break;
+				
+			case TYPE_PARAMETER:
+				printTypeParameter(child1, child2); break;
+				
+			case TYPE_UPPER_BOUNDS:
+				printUpperBoundTypeParameter(child1); break;
+
+			case WILDCARD_TYPE:
+			case TYPE_LOWER_BOUNDS:
+				debug(ast); break;
 
 			case TYPE_ARGUMENTS:
 				printTypeArguments(getChildren(ast, TYPE_ARGUMENT)); break;
@@ -333,8 +340,8 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				
 			case LITERAL_this:
 			case LITERAL_super:
-				err.println("<<<<<<<<<<<<<<<<<<<<<<<<<printing super or this");
-				err.println(name(ast));
+				//err.println("<<<<<<<<<<<<<<<<<<<<<<<<<printing super or this");
+				//err.println(name(ast));
 				printASTName(ast); break;
 
 			case LITERAL_continue:
@@ -399,6 +406,10 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 		previousType = ast.getType();
 		brApplied = false;
 	}
+
+	protected void printTypeParameter(AST child1, AST child2) {}
+	protected void printUpperBoundTypeParameter(AST child1) {}
+
 
 	protected void printAnnotation(final AST ast) {}
 
@@ -584,6 +595,8 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 	protected void printTypeArguments(final List<AST> list) {}
 
+	protected void printTypeParameters(final AST ast) {}
+	
 	protected void printImplementsClause(final AST ast) {}
 
 	protected void printExtendsClause(final AST ast) {}

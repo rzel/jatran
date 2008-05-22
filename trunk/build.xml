@@ -22,19 +22,15 @@
 	</path>
 
 	
-	<!-- scala compiler command. -->
-	<taskdef resource="scala/tools/ant/antlib.xml">
-	  <classpath refid="project.classpath"/>
-	</taskdef>
-	
 	<target name="package" depends="clean,compile,test">
 		<mkdir dir="${dist.dir}"/>
 		<jar destfile="${dist.dir}/jatran.jar" basedir="${build.dir}"/>
 	</target>
 
-	<target name="compile" depends="compile:java,compile:scala"/>
 
 	<!-- compile -->
+	<target name="compile" depends="compile:java,compile:scala"/>
+
 	<target name="compile:java">
 		<mkdir dir="${build.dir}"/>
 		<javac srcdir="${src.main}" destdir="${build.dir}" classpathref="project.classpath">
@@ -43,6 +39,11 @@
 	</target>
 
 	<target name="compile:scala">
+		<!-- scala compiler command. -->
+		<taskdef resource="scala/tools/ant/antlib.xml">
+		  <classpath refid="project.classpath"/>
+		</taskdef>
+		
 		<mkdir dir="${build.dir}"/>
 		<scalac srcdir="${src.main}" destdir="${build.dir}" classpathref="project.classpath" force="changed">
 			<include name="**/*.scala"/>
@@ -60,20 +61,20 @@
 
 
     <target name="test:all" depends="compile">
-    <!-- Delete the ${build} and ${dist} directory trees -->
-    <java classname="org.scalatest.Runner" fork="true" failonerror="true">
-		<classpath refid="project.classpath"/>
-		<classpath refid="test.classpath" />			
-        <arg value="-p"/>
-        <arg value="build_tests"/>
-
-       <arg value="-g"/>
-       <arg value="-o"/>
-
-       <arg value="-s"/>
-       <arg value="org.scalatest.AllSuite"/>
-    </java>
-  </target>
+	    <!-- Delete the ${build} and ${dist} directory trees -->
+	    <java classname="org.scalatest.Runner" fork="true" failonerror="true">
+			<classpath refid="project.classpath"/>
+			<classpath refid="test.classpath" />			
+	        <arg value="-p"/>
+	        <arg value="build_tests"/>
+	
+	       <arg value="-g"/>
+	       <arg value="-o"/>
+	
+	       <arg value="-s"/>
+	       <arg value="org.scalatest.AllSuite"/>
+	    </java>
+  	</target>
 	
 	<target name="test" depends="compile:tests">
 		<mkdir dir="${test.dir}"/>

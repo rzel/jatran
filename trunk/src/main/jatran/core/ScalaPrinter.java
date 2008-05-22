@@ -708,7 +708,28 @@ public class ScalaPrinter extends SourcePrinter {
 			print(t.getFirstChild());
 		print("]");
 	}
+	
+	@Override
+	protected void printTypeParameters(final AST ast) {
+		print("[");
+		printChildren(ast, ",", TYPE_PARAMETER);
+		print("]");
+	}
 
+	@Override
+	protected void printTypeParameter(AST child1, AST child2) {
+		print(child1);
+		print(" ");
+		print(child2);
+	}
+	
+	@Override
+	protected void printUpperBoundTypeParameter(AST ast) {
+		print("<: ");
+		print(ast);
+	}
+	
+	
 	@Override
 	protected void printModifiers(final AST ast) {
 		if (hasChildren(ast)) {
@@ -915,7 +936,6 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 	
 
-	
 	private void printIndented(final AST ast) {
 		startIndent(ast);
 		print(ast);
@@ -927,6 +947,10 @@ public class ScalaPrinter extends SourcePrinter {
 			final List<AST> imethods, final List<AST> ivars) {
 		print(isClass ? "class " : "trait ");
 		print(getChild(ast, IDENT));
+		
+		//print type params
+		print(getChild(ast, TYPE_PARAMETERS));
+		
 		print(" ");
 		print(getChild(ast, EXTENDS_CLAUSE));
 		print(getChild(ast, IMPLEMENTS_CLAUSE));

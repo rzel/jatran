@@ -69,6 +69,21 @@ public class ScalaPrinter extends SourcePrinter {
 		print(getChild(ast, INTERFACE_DEF));
 		br();
 	}
+	
+	//TODO:retrieve names of dot children, so we can for instance do System.out.println -> println
+	@Override
+	protected void printDot(final AST child1, final AST child2) {
+		if (child2.getType() == LITERAL_class) {
+			print("classOf[");
+			print(child1);
+			print("]");
+		} else {
+			print(child1);
+			print(".");
+			print(child2);
+		}
+	}
+
 
 	@Override
 	protected void printImport(final AST ast) {
@@ -330,19 +345,10 @@ public class ScalaPrinter extends SourcePrinter {
 
 	@Override
 	protected void printIncDec(final AST ast, final AST child1) {
-		// err.println("incdec ---");
-		// debug(ast);
-		// err.println("-------------child1");
-		// debug(child1);
-		// String var = child1.getText();
-
 		print(child1);
 		print(" = ");
 		print(child1);
 		print(ast.getText().equals("++") ? " + 1" : " - 1");
-
-		// print(var + " = " + var + (ast.getText().equals("++") ? " + 1" : " -
-		// 1") );
 	}
 
 	@Override
@@ -527,8 +533,6 @@ public class ScalaPrinter extends SourcePrinter {
 	@Override
 	protected void printWhileLoop(final AST child1, final AST child2) {
 		print("while (");
-		err.println("<<><><><><><><><><><><>< " + child1.getType());
-		//doNotBreakAfterPrint = true;
 		print(child1); // the "while" condition: an EXPR
 		print(") ");
 		print(child2); // an SLIST

@@ -20,17 +20,6 @@ import jatran.lexing.JavaRecognizer
  */
 object Main {
   def main(argv:Array[String]) {  
-    //val rife = "/Users/eokyere/Desktop/rife-source-1.6.2-snapshot-20080428"
-    //parse(rife + "/src", "rife-out", false)
-    
-    //parse("/Users/eokyere/Desktop/java-diff-1.0.5", "tmp/diff-out", false)
-    
-    //"/Users/eokyere/KonoLabs/pebble/src"
-    //val src = "/Users/eokyere/Labs/atleap/application/src/dao"
-    val src = "/Users/eokyere/KonoLabs/currentcms/src"
-    parse(src, "/Users/eokyere/KonoLabs/currentcms-scala", false)
-    return
-    
     object Options extends CommandLineParser {
       val input = new StringOption('i', "input", "src file or folder to transform") with AllowAll
       val output = new StringOption('o', "output", "output folder; defaults to jatran-out under current dir") with AllowAll

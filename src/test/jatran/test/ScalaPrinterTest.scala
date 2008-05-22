@@ -34,28 +34,33 @@ class ScalaPrinterTest extends  TestNGSuite {
   }
   
   @Test
-  def testStaticMembersAreChangedToMembersOfCompanionObject {
+  def staticMembersAreChangedToMembersOfCompanionObject {
     test("StaticMembersToCompanionObject.scala")
   }
 
   @Test
-  def testForLoopsChangedToWhileLoopEquivalents {
+  def forLoopsChangedToWhileLoopEquivalents {
     test("ForLoopsChangeToWhileLoops.scala")
   }
   
   @Test
-  def testHelloWorldApplication {
+  def helloWorldApplication {
     test("HelloWorldApplication.scala")
   }
   
   @Test
-  def testExtWithCtorsNoInstMembersAndAStaticMember {
+  def extensionWithCtorsNoInstMembersAndAStaticMember {
     test("ExtWithCtorsNoInstMembersAndAStaticMember.scala")
   }
   
   @Test
   def testDiffFileClass {
     test("FileDiff.scala")
+  }
+  
+  @Test
+  def literalClassToClassOf {
+    test("LiteralClassToClassOf.scala")
   }
   
   def test(name:String) {

@@ -25,8 +25,10 @@ object Main {
     
     //parse("/Users/eokyere/Desktop/java-diff-1.0.5", "tmp/diff-out", false)
     
-    val openid = "/Users/eokyere/Labs/openid4java/src"
-    parse(openid, "tmp/openid-out", false)
+    //"/Users/eokyere/KonoLabs/pebble/src"
+    //val src = "/Users/eokyere/Labs/atleap/application/src/dao"
+    val src = "/Users/eokyere/KonoLabs/currentcms/src"
+    parse(src, "/Users/eokyere/KonoLabs/currentcms-scala", false)
     return
     
     object Options extends CommandLineParser {

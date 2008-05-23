@@ -237,9 +237,8 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 			case TYPE_LOWER_BOUNDS:
 				debug(ast); break;
 
+			//type arguments must be called explicitly from ident now	
 			case TYPE_ARGUMENTS:
-				printTypeArguments(getChildren(ast, TYPE_ARGUMENT)); break;
-
 			case TYPE_ARGUMENT: break;
 
 
@@ -302,6 +301,8 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				printDefaultCase(child1); break;
 
 			case IDENT:
+				printIdent(ast); break;
+				
 			case NUM_INT:
 			case NUM_LONG:
 			case CHAR_LITERAL:
@@ -407,8 +408,10 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 		brApplied = false;
 	}
 
-	protected void printTypeParameter(AST child1, AST child2) {}
-	protected void printUpperBoundTypeParameter(AST child1) {}
+	protected void printIdent(final AST ast) {}
+
+	protected void printTypeParameter(final AST child1, final AST child2) {}
+	protected void printUpperBoundTypeParameter(final AST child1) {}
 
 
 	protected void printAnnotation(final AST ast) {}
@@ -593,6 +596,9 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 	protected void printParameters(final AST ast) {}
 
+	protected void printTypeArguments(final AST ast) {
+		printTypeArguments(getChildren(ast, TYPE_ARGUMENT)); 
+	}
 	protected void printTypeArguments(final List<AST> list) {}
 
 	protected void printTypeParameters(final AST ast) {}

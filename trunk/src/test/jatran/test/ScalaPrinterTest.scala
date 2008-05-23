@@ -59,6 +59,10 @@ class ScalaPrinterTest extends  TestNGSuite {
     test("FooUpperBoundFTP.scala")
   }
   
+  @Test def multipleImplementedInterfaces {
+    test("FooImplMultipleInterfaces.scala")
+  }
+  
   def test(name:String) {
     val f = stub/name
     val o = gstub/name

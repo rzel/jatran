@@ -47,8 +47,7 @@ import antlr.collections.AST;
  * @author eokyere
  */
 public class ScalaPrinter extends SourcePrinter {
-	@Override
-	protected void printRoot(final AST ast) {
+	@Override protected void printRoot(final AST ast) {
 		// String header = "";
 		// print(header);
 		// br();
@@ -71,8 +70,7 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 	
 	//TODO:retrieve names of dot children, so we can for instance do System.out.println -> println
-	@Override
-	protected void printDot(final AST child1, final AST child2) {
+	@Override protected void printDot(final AST child1, final AST child2) {
 		if (child2.getType() == LITERAL_class) {
 			print("classOf[");
 			print(child1);
@@ -85,8 +83,7 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 
-	@Override
-	protected void printImport(final AST ast) {
+	@Override protected void printImport(final AST ast) {
 		print("import ");
 		print(ast.getFirstChild());
 		printEmptyStatement();
@@ -94,12 +91,23 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	/**
+	 * prints an ident; an ident may have type arguments; this shd be handled
+	 */
+	@Override protected void printIdent(final AST ast) {
+		printASTText(ast);
+		AST sib = ast.getNextSibling();
+		
+		if (null != sib && sib.getType() == TYPE_ARGUMENTS)
+			printTypeArguments(sib);
+	}
+
+	
+	/**
 	 * We defer printing package and import statements till we are in the class
 	 * definition level, so we can easily surround the class with the proper
 	 * package block, and add imports in the right location
 	 */
-	@Override
-	protected void printDefinition(final AST ast, final AST parent) {
+	@Override protected void printDefinition(final AST ast, final AST parent) {
 		AST objectBlock = getChild(ast, OBJBLOCK);
 
 		List<AST> methods = getChildren(objectBlock, METHOD_DEF);
@@ -124,8 +132,7 @@ public class ScalaPrinter extends SourcePrinter {
 
 		// if no class members, but have object members, do not print
 		// class/trait
-		isClass = ast.getType() == CLASS_DEF; // whether it is a class or
-												// trait
+		isClass = ast.getType() == CLASS_DEF; // whether it is a class or trait
 		boolean hasClassMembers = 0 < imethods.size() || 0 < ivars.size();
 		boolean hasObjectMemebers = 0 < omethods.size() || 0 < ovars.size();
 		boolean extOrImp = false;
@@ -148,13 +155,21 @@ public class ScalaPrinter extends SourcePrinter {
 		}
 	}
 
-	@Override
-	protected void printExtendsClause(final AST ast) {
+	/**
+	 * ast.firstChild shd be an ident
+	 */
+	@Override protected void printExtendsClause(final AST ast) {
 		if (hasChildren(ast)) {
-			print("extends ");
-			printExpressionList(ast);
-			print(" ");
+			AST ident = ast.getFirstChild();
+			printExtends(ident);
 		}
+	}
+
+	private void printExtends(AST ident) {
+		print("extends ");
+		extended = true;
+		print(ident);
+		print(" ");
 	}
 
 	/**
@@ -163,17 +178,22 @@ public class ScalaPrinter extends SourcePrinter {
 	 * oversimplified description, it might go wrong in some cases that I won't
 	 * go into here.)
 	 */
-	@Override
-	protected void printImplementsClause(final AST ast) {
+	@Override protected void printImplementsClause(final AST ast) {
 		if (hasChildren(ast)) {
-			print(2 <= ast.getNumberOfChildren() ? "with " : "extends ");
-			printExpressionList(ast);
-			print(" ");
+			List<AST> xs = getChildren(ast, IDENT);
+			
+			if (!extended)
+				printExtends(xs.remove(0));
+			
+			for (AST x : xs) {
+				print("with ");
+				print(x);
+				print(" ");
+			}
 		}
 	}
 
-	@Override
-	protected void printCtorDefinition(final AST ast) {
+	@Override protected void printCtorDefinition(final AST ast) {
 		getChild(ast, IDENT).setText("this");
 		printMethodDefinition(ast);
 	}
@@ -181,8 +201,7 @@ public class ScalaPrinter extends SourcePrinter {
 	// TODO: anonymous functions and function asst.
 	// out("// the next method throws the following errors: ");
 	// print(getChild(ast, LITERAL_throws));
-	@Override
-	protected void printMethodDefinition(final AST ast) {
+	@Override protected void printMethodDefinition(final AST ast) {
 		List<AST> modifiers = getChildren(getChild(ast, MODIFIERS));
 
 		/**
@@ -236,8 +255,7 @@ public class ScalaPrinter extends SourcePrinter {
 
 		if (isClass) {
 			//if (!(ast.getType() == CTOR_DEF) && !getChild(ast, TYPE).getFirstChild().getText().equals("void"))
-			print(" ="); // TODO: move this up so if non unit, we'll print =
-							// {} else () {}
+			print(" ="); // TODO: move this up so if non unit, we'll print = {} else () {}
 			if (hasModifier(ast, LITERAL_synchronized))
 				print(" synchronized");
 			if (null == body) {
@@ -252,28 +270,24 @@ public class ScalaPrinter extends SourcePrinter {
 		}
 	}
 
-	@Override
-	protected void printSuperConstructorCall(final AST ast) {
+	@Override protected void printSuperConstructorCall(final AST ast) {
 		printConstructorCall(ast);
 	}
 	
-	@Override
-	protected void printConstructorCall(final AST ast) {
+	@Override protected void printConstructorCall(final AST ast) {
 		print("this(");
 		print(ast.getFirstChild());
 		print(")");
 	}
 	
-	@Override
-	protected void printParameters(final AST ast) {
+	@Override protected void printParameters(final AST ast) {
 		print("(");
 		printExpressionList(ast);
 		print(")");
 	}
 
 	// TODO: final?
-	@Override
-	protected void printParamDef(final AST ast) {
+	@Override protected void printParamDef(final AST ast) {
 		// print(getChild(ast, MODIFIERS));
 		print(getChild(ast, IDENT));
 		print(":");
@@ -281,11 +295,9 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	/**
-	 * @param ast
-	 *            A Java 1.5 ANNOTATION AST node
+	 * @param ast  A Java 1.5 ANNOTATION AST node
 	 */
-	@Override
-	protected void printAnnotation(final AST ast) {
+	@Override protected void printAnnotation(final AST ast) {
 		AST ann = ast.getFirstChild();
 		String txt = ann.getText();
 
@@ -311,15 +323,14 @@ public class ScalaPrinter extends SourcePrinter {
 			print(ann.getNextSibling());
 			print(")");
 		}
+		
 		br();
 	}
 
 	/**
-	 * @param ast
-	 *            FOR_EACH_CLAUSE
+	 * @param ast FOR_EACH_CLAUSE
 	 */
-	@Override
-	protected void printForEach(final AST ast) {
+	@Override protected void printForEach(final AST ast) {
 		// NOTE: for each clause is parameter def and expression
 		print("val ");
 		print(getChild(getChild(ast, PARAMETER_DEF), IDENT));
@@ -327,8 +338,7 @@ public class ScalaPrinter extends SourcePrinter {
 		print(getChild(ast, EXPR));
 	}
 
-	@Override
-	protected void printAnnotationMemberValuePair(final AST ast) {
+	@Override protected void printAnnotationMemberValuePair(final AST ast) {
 		print(ast.getFirstChild());
 		print(" = ");
 		print(ast.getFirstChild().getNextSibling());
@@ -338,34 +348,29 @@ public class ScalaPrinter extends SourcePrinter {
 	 * say goodbye to x++, change it to x and to x = x + 1;
 	 *TODO: check preAssignment
 	 */
-	@Override
-	protected void printPostAssignment(final AST ast, final AST child1) {
+	@Override protected void printPostAssignment(final AST ast, final AST child1) {
 		printIncDec(ast, child1);
 	}
 
-	@Override
-	protected void printIncDec(final AST ast, final AST child1) {
+	@Override protected void printIncDec(final AST ast, final AST child1) {
 		print(child1);
 		print(" = ");
 		print(child1);
 		print(ast.getText().equals("++") ? " + 1" : " - 1");
 	}
 
-	@Override
-	protected void printExpressionList(final AST ast) {
+	@Override protected void printExpressionList(final AST ast) {
 		printChildren(ast, ", ");
 	}
 
-	@Override
-	protected void printExpression(final AST parent, final AST child1) {
+	@Override protected void printExpression(final AST parent, final AST child1) {
 		//TODO: add in check to prevent forced break, as this might be in a 
 		//TODO: check exp after printing, and see if next is close brack, then don't br()
 		print(child1);
 		printSemi(parent);
 	}
 
-	@Override
-	protected void printStatementList(final AST ast) {
+	@Override protected void printStatementList(final AST ast) {
 		startBlock();
 		if (printChildren(ast, "\n"))
 			br();
@@ -373,16 +378,11 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	/**
-	 * @param condition
-	 *            EXPR
-	 * @param thenClause
-	 *            SLIST, RETURN or EXPR
-	 * @param elseClause
-	 *            SLIST
+	 * @param condition EXPR
+	 * @param thenClause SLIST, RETURN or EXPR
+	 * @param elseClause SLIST
 	 */
-	@Override
-	protected void printIfStatement(final AST condition, final AST thenClause,
-			final AST elseClause) {
+	@Override protected void printIfStatement(final AST condition, final AST thenClause, final AST elseClause) {
 		print("if (");
 		print(condition);
 		print(") ");
@@ -396,8 +396,7 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	// the EXPR to switch on
-	@Override
-	protected void printSwitch(final AST ast, final AST expr) {
+	@Override protected void printSwitch(final AST ast, final AST expr) {
 		print(expr);
 		print(" match ");
 		print(" ");
@@ -406,17 +405,12 @@ public class ScalaPrinter extends SourcePrinter {
 		endBlock();
 	}
 
-	// * 13. switch statements require more care. First turn case pat: into case
-	// pat =>.
-	// * Now you should take some more involved measures: scala does not need a
-	// break,
-	// * which is convenient, but an unmentioned default case will not be
-	// ignored by
-	// * lead to a runtime error. If your switch does not have a default case,
-	// add one case _ =>
-	// * (the right-hand side is empty.)
-	@Override
-	protected void printCaseGroup(final AST ast) {
+	// 13. switch statements require more care. First turn case pat: into case pat =>.
+	// Now you should take some more involved measures: scala does not need a
+	// break, which is convenient, but an unmentioned default case will not be
+	// ignored by lead to a runtime error. If your switch does not have a default case,
+	// add one case _ => (the right-hand side is empty.)
+	@Override protected void printCaseGroup(final AST ast) {
 		List<AST> cases = getChildren(ast, LITERAL_case);
 		int n = cases.size();
 
@@ -435,9 +429,9 @@ public class ScalaPrinter extends SourcePrinter {
 			else
 				print(defcase);
 		}
+		
 		List<AST> slist = getChildren(getChild(ast, SLIST), ALL);
 
-		//
 		indentedSlist(slist);
 	}
 
@@ -860,8 +854,7 @@ public class ScalaPrinter extends SourcePrinter {
 	 * Note: <code>a instanceof b</code> becomes
 	 * <code>a.isInstanceOf[b]</code>
 	 */
-	@Override
-	protected void printBinaryOperator(final AST ast) {
+	@Override protected void printBinaryOperator(final AST ast) {
 		boolean b = ast.getType() == LITERAL_instanceof;
 
 		printWithParens(ast, ast.getFirstChild());
@@ -872,8 +865,7 @@ public class ScalaPrinter extends SourcePrinter {
 			print("]");
 	}
 
-	@Override
-	protected void setupTokenNames() {
+	@Override protected void setupTokenNames() {
 		if (null != TOKEN_NAMES)
 			return;
 		super.setupTokenNames();
@@ -928,11 +920,23 @@ public class ScalaPrinter extends SourcePrinter {
 		TOKEN_NAMES[LITERAL_new] = "new";
 	}
 
-	@Override
-	protected void setupKeywords() {
+	@Override protected void setupKeywords() {
 		KEYWORDS = new HashMap<String, Integer>();
-		KEYWORDS.put("type", 1);
-		KEYWORDS.put("val", 1);
+		KEYWORDS.put("def", 1); 
+		KEYWORDS.put("forSome", 1); 
+		KEYWORDS.put("implicit", 1); 
+		KEYWORDS.put("lazy", 1); 
+		KEYWORDS.put("match", 1); 
+		KEYWORDS.put("object", 1); 
+		KEYWORDS.put("override", 1); 
+		KEYWORDS.put("requires", 1); 
+		KEYWORDS.put("sealed", 1); 
+		KEYWORDS.put("trait", 1); 
+		KEYWORDS.put("type", 1); 
+		KEYWORDS.put("val", 1); 
+		KEYWORDS.put("var", 1); 
+		KEYWORDS.put("with", 1); 
+		KEYWORDS.put("yield", 1);		
 	}
 	
 
@@ -1011,4 +1015,5 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	private boolean isClass = false;
+	private boolean extended = false;
 }

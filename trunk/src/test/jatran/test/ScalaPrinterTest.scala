@@ -63,6 +63,10 @@ class ScalaPrinterTest extends  TestNGSuite {
     test("FooImplMultipleInterfaces.scala")
   }
   
+  @Test def aFairlyComplexClassImplementingAStrutsAction {
+    test("AStrutsAction.scala")
+  }
+  
   def test(name:String) {
     val f = stub/name
     val o = gstub/name

@@ -599,6 +599,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	protected void printTypeArguments(final AST ast) {
 		printTypeArguments(getChildren(ast, TYPE_ARGUMENT)); 
 	}
+	
 	protected void printTypeArguments(final List<AST> list) {}
 
 	protected void printTypeParameters(final AST ast) {}

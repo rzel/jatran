@@ -393,6 +393,8 @@ public class ScalaPrinter extends SourcePrinter {
 			print(thenClause.getType() == SLIST ? " else " : "else ");
 			printIndented(elseClause);
 		}
+		
+		br();
 	}
 
 	// the EXPR to switch on
@@ -527,6 +529,8 @@ public class ScalaPrinter extends SourcePrinter {
 	@Override
 	protected void printWhileLoop(final AST child1, final AST child2) {
 		print("while (");
+		//err.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		//debug(child1);
 		print(child1); // the "while" condition: an EXPR
 		print(") ");
 		print(child2); // an SLIST
@@ -633,8 +637,8 @@ public class ScalaPrinter extends SourcePrinter {
 				}
 		}
 		
-//		if (VARIABLE_DEF != previousType && SLIST != previousType)
-//			br();
+		//if (VARIABLE_DEF != previousType && SLIST != previousType)
+		///	br();
 
 		print(isFinal(ast) ? "val " : "var ");
 		print(getChild(ast, IDENT));
@@ -648,22 +652,15 @@ public class ScalaPrinter extends SourcePrinter {
 
 		AST assign = getChild(ast, ASSIGN);
 		
-		//TODO: get type here and do assignment to appropriate type
 		if (null == assign)
 			print(" = null");
-		/*else if (null != getChild(type, ARRAY_DECLARATOR)) {
-			// Change T x[] = { y1,...,yN } into val x =
-			// Array[T](y1,...,yN).
-			print(" = Predef.");
-			print(type);
-			printArrayInitialization(assign.getFirstChild());
-		}*/else
+		else
 			print(assign);
 
 		printSemi(parent);
 	}
 
-	/**
+	/**	
 	 * If we have two children, it's of the form "a=0" If just one child, it's
 	 * of the form "=0" (where the lhs is above this AST).
 	 */
@@ -673,10 +670,17 @@ public class ScalaPrinter extends SourcePrinter {
 			print(child1);
 			print(" = ");
 			print(child2);
+			
+			if (!("(".equals(child2.getText().trim())))
+				br();
 		} else {
 			print(" = ");
 			print(child1);
+			br();
 		}
+		
+		//TODO check when to break here
+		//br();
 	}
 
 	@Override

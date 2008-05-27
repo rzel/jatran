@@ -371,19 +371,14 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				printDoLoop(child1, child2); break;
 
 			case LITERAL_try:
-				err.println("we have a tryhllllllllllllllllllllllllllllllllllly");
-				debug(ast);
 				printTry(ast, child1); break;
 
 			case LITERAL_catch:
-				err.println("we have a catchl<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-				debug(ast);
 				printCatch(child1, child2); break;
 
 			case LITERAL_finally:
-				err.println("we have a finallllllllllllllllllllllllllllllllllly");
-				debug(ast);
-				printFinally(child1, child2); break;
+				//printFinally(child1, child2);
+				break;
 
 			case LITERAL_throw:
 				printThrow(child1); break;

@@ -71,6 +71,10 @@ class ScalaPrinterTest extends  TestNGSuite {
     test("TryCatchPatterns.scala")
   }
   
+  @Test def whenToPrintReturnStatement {
+    test("ReturnStatementPatterns.scala")
+  }
+  
   def test(name:String) {
     val f = stub/name
     val o = gstub/name

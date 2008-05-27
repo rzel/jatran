@@ -771,7 +771,10 @@ public class ScalaPrinter extends SourcePrinter {
 
 	@Override
 	protected void printReturn(final AST child1) {
-		print(child1);
+		if (null == child1)
+			print("return");
+		else
+			print(child1);
 		printEmptyStatement();
 	}
 

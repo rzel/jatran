@@ -18,7 +18,7 @@ class ScalaPrinterTest extends  TestNGSuite {
   @BeforeSuite
   def generateStubs {
     val test = new File("src/stub")
-    Main.parse(test, "tmp/generated", false)
+    Main.transform(test, "tmp/generated", false)
   }
   
   
@@ -65,6 +65,10 @@ class ScalaPrinterTest extends  TestNGSuite {
   
   @Test def aFairlyComplexClassImplementingAStrutsAction {
     test("AStrutsAction.scala")
+  }
+  
+  @Test def tryCatchFinallyTransformations {
+    test("TryCatchPatterns.scala")
   }
   
   def test(name:String) {

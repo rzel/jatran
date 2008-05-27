@@ -233,9 +233,11 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 			case TYPE_UPPER_BOUNDS:
 				printUpperBoundTypeParameter(child1); break;
 
-			case WILDCARD_TYPE:
 			case TYPE_LOWER_BOUNDS:
 				debug(ast); break;
+				
+			case WILDCARD_TYPE:
+				break;
 
 			//type arguments must be called explicitly from ident now	
 			case TYPE_ARGUMENTS:
@@ -338,11 +340,8 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 			case SEMI:
 				printASTName(ast); break;
 				
-				
 			case LITERAL_this:
 			case LITERAL_super:
-				//err.println("<<<<<<<<<<<<<<<<<<<<<<<<<printing super or this");
-				//err.println(name(ast));
 				printASTName(ast); break;
 
 			case LITERAL_continue:
@@ -372,12 +371,18 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				printDoLoop(child1, child2); break;
 
 			case LITERAL_try:
+				err.println("we have a tryhllllllllllllllllllllllllllllllllllly");
+				debug(ast);
 				printTry(ast, child1); break;
 
 			case LITERAL_catch:
+				err.println("we have a catchl<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+				debug(ast);
 				printCatch(child1, child2); break;
 
 			case LITERAL_finally:
+				err.println("we have a finallllllllllllllllllllllllllllllllllly");
+				debug(ast);
 				printFinally(child1, child2); break;
 
 			case LITERAL_throw:
@@ -398,7 +403,15 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 			case SL_COMMENT:
 			case ML_COMMENT: break;
-
+			
+			case LITERAL_assert:
+				print("assert ("); 
+				print(child1);
+				print(")");
+				br();
+				break;
+			
+			
 			default:
 				err.println("Invalid type:" + ast.getType()); break;
 		}
@@ -475,11 +488,11 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	protected boolean printChildren(final AST ast, final String separator, final int type) {
 		boolean ret = false;
 		AST child = ast.getFirstChild();
-
+		
 		while (child != null) {
 			if (type == ALL || child.getType() == type) {
 				// print a separator before each printed child (except first)
-				if (child != ast.getFirstChild())
+				if (!(ast.getFirstChild() == child))
 					if (separator.endsWith("\n")) {
 						out.print(separator.substring(0,separator.length()-1));
 						br();

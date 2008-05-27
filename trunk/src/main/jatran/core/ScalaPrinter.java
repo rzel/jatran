@@ -48,10 +48,6 @@ import antlr.collections.AST;
  */
 public class ScalaPrinter extends SourcePrinter {
 	@Override protected void printRoot(final AST ast) {
-		// String header = "";
-		// print(header);
-		// br();
-
 		try {
 			// first child is IDENT
 			AST pkg = getChild(ast, PACKAGE_DEF).getFirstChild();
@@ -165,13 +161,6 @@ public class ScalaPrinter extends SourcePrinter {
 		}
 	}
 
-	private void printExtends(AST ident) {
-		print("extends ");
-		extended = true;
-		print(ident);
-		print(" ");
-	}
-
 	/**
 	 * instead of implements myInterface, write extends myInterface if its the
 	 * only one. Write with i1 ... with iN if there are several (this is a
@@ -231,19 +220,9 @@ public class ScalaPrinter extends SourcePrinter {
 		AST ident = getChild(ast, IDENT);
 		AST body = getChild(ast, SLIST);
 
-		// TODO: is this abstract
-		if (null == body && isClass) {
-			// print("/**");
-			// br();
-			// print("//possibly abstract method");
-			// br();
-		}
-
 		print("def ");
 		print(ident);
 		print(getChild(ast, PARAMETERS));
-
-
 
 		// TODO: if type is unit, ():unit = { -> () {
 		if (!(ast.getType() == CTOR_DEF)) {
@@ -364,8 +343,6 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	@Override protected void printExpression(final AST parent, final AST child1) {
-		//TODO: add in check to prevent forced break, as this might be in a 
-		//TODO: check exp after printing, and see if next is close brack, then don't br()
 		print(child1);
 		printSemi(parent);
 	}
@@ -487,7 +464,7 @@ public class ScalaPrinter extends SourcePrinter {
 		} else {
 			print(getChild(ast, FOR_INIT));
 			br();
-			print("while (");//TODO: watch for complex statement, so line breaks are not printed here
+			print("while (");
 			print(getChild(ast, FOR_CONDITION));
 			print(") ");
 		}
@@ -529,8 +506,6 @@ public class ScalaPrinter extends SourcePrinter {
 	@Override
 	protected void printWhileLoop(final AST child1, final AST child2) {
 		print("while (");
-		//err.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-		//debug(child1);
 		print(child1); // the "while" condition: an EXPR
 		print(") ");
 		print(child2); // an SLIST
@@ -548,37 +523,42 @@ public class ScalaPrinter extends SourcePrinter {
 	protected void printTry(final AST ast, final AST child1) {
 		print("try ");
 		print(child1); // an SLIST
+		printCatchClauses(ast);
+		//printFinally()
+		
+		printFinallyClause(ast);
+	}
+
+	private void printFinallyClause(final AST ast) {
+		AST child2 = getChild(ast, LITERAL_finally); 
+		if (null != child2) {
+			print(" finally ");
+			print(child2.getFirstChild()); // an SLIST
+		}
+	}
+
+	private void printCatchClauses(final AST ast) {
+		if (null == getChild(ast, LITERAL_catch))
+			return;
 		print(" catch {");
 		printChildren(ast, " ", LITERAL_catch);
 		print("}");
 	}
 
 	/**
-	 * @param param
-	 *            PARAMETER_DEF
-	 * @param slist
-	 *            SLIST
+	 * @param param PARAMETER_DEF
+	 * @param slist SLIST
 	 */
 	@Override
 	protected void printCatch(final AST param, final AST slist) {
 		// TODO: merge with with case print stms
 		// print("catch (");
 		startIndent();
-		print("case ");
-		print(param);
-		print(" => ");
+		print("case "); print(param); print(" => ");
 		startIndent();
 		printChildren(slist, "\n", ALL);
 		closeIndent();
 		closeIndent();
-	}
-
-	// the first child is the "try" and the second is the SLIST
-	@Override
-	protected void printFinally(final AST child1, final AST child2) {
-		print(child1);
-		print(" finally ");
-		print(child2); // an SLIST
 	}
 
 	@Override
@@ -627,19 +607,13 @@ public class ScalaPrinter extends SourcePrinter {
 	protected void printVariableDef(final AST ast, final AST parent) {
 		List<AST> modifiers = getChildren(getChild(ast, MODIFIERS));
 
-		if (modifiers.size() > 0) {
-			// boolean t = false;
-			for (AST m : modifiers)
-				if (!(m.getType() == LITERAL_public
-						|| m.getType() == LITERAL_static || m.getType() == FINAL)) {
-					print(m);
-					print(" ");
-				}
-		}
+		for (AST m : modifiers)
+			if (!(m.getType() == LITERAL_public
+					|| m.getType() == LITERAL_static || m.getType() == FINAL)) {
+				print(m);
+				print(" ");
+			}
 		
-		//if (VARIABLE_DEF != previousType && SLIST != previousType)
-		///	br();
-
 		print(isFinal(ast) ? "val " : "var ");
 		print(getChild(ast, IDENT));
 
@@ -657,12 +631,14 @@ public class ScalaPrinter extends SourcePrinter {
 		else
 			print(assign);
 
-		printSemi(parent);
+		//printSemi(parent);
 	}
 
 	/**	
 	 * If we have two children, it's of the form "a=0" If just one child, it's
 	 * of the form "=0" (where the lhs is above this AST).
+	 * 
+	 *TODO: fix line breaks
 	 */
 	@Override
 	protected void printAssignment(final AST child1, final AST child2) {
@@ -678,9 +654,6 @@ public class ScalaPrinter extends SourcePrinter {
 			print(child1);
 			br();
 		}
-		
-		//TODO check when to break here
-		//br();
 	}
 
 	@Override
@@ -736,9 +709,8 @@ public class ScalaPrinter extends SourcePrinter {
 		}
 	}
 
-	@Override
-	protected void printTrinaryOp(final AST child1, final AST child2,
-			final AST child3) {
+	//TODO create LITERAL_if AST node and pass to print
+	@Override protected void printTrinaryOp(final AST child1, final AST child2, final AST child3) {
 		print("if (");
 		print(child1);
 		print(") ");
@@ -944,6 +916,13 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 	
 
+	private void printExtends(final AST ident) {
+		print("extends ");
+		extended = true;
+		print(ident);
+		print(" ");
+	}
+
 	private void printIndented(final AST ast) {
 		startIndent(ast);
 		print(ast);
@@ -978,6 +957,7 @@ public class ScalaPrinter extends SourcePrinter {
 		if (0 < n) {
 			print("/*");
 			br();
+			
 			print(ctors.get(0));
 			for (int i = 1; i < n; ++i) {
 				br();

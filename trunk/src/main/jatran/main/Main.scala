@@ -40,9 +40,9 @@ object Main extends Main {
       
       (cmd(Options.input), cmd(Options.output)) match {
         case (Some(i), Some(o)) =>
-          parse(i, o, false)
+          transform(i, o, false)
         case (Some(i), None) =>
-          parse(i, "jatran-out", false)
+          transform(i, "jatran-out", false)
         case _ =>
           Options.showHelp(System.out)
       }
@@ -51,11 +51,11 @@ object Main extends Main {
 }
 
 class Main {
-  def parse(src:String, out:String, untyped:Boolean) {
-    parse(new File(src), out, untyped)
+  def transform(src:String, out:String, untyped:Boolean) {
+    transform(new File(src), out, untyped)
   }
   
-  def parse(src:File, out:String, untyped:Boolean) {
+  def transform(src:File, out:String, untyped:Boolean) {
     for (f <- src.flatten; if f.name.endsWith(".java") && 5 <= f.name.length) {
         val i = new BufferedReader(new FileReader(f))
 

@@ -7,7 +7,7 @@ import scalax.io.Implicits._
 
 import org.scalatest.testng.TestNGSuite
 
-import jatran.main.Main
+import jatran.main.Jatran
 
 import org.incava.util.diff._
 
@@ -18,7 +18,9 @@ class ScalaPrinterTest extends  TestNGSuite {
   @BeforeSuite
   def generateStubs {
     val test = new File("src/stub")
-    Main.transform(test, "tmp/generated", false)
+    val jatran = new Jatran()
+
+    jatran.transform(test, "tmp/generated", false)
   }
   
   

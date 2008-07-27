@@ -18,7 +18,7 @@ import jatran.lexing.JavaRecognizer
 /**
  * @author eokyere
  */
-object Main extends Main {
+object Main {
   def main(argv:Array[String]) {  
     object Options extends CommandLineParser {
       val input = new StringOption('i', "input", "src file or folder to transform") with AllowAll
@@ -30,7 +30,9 @@ object Main extends Main {
           |  (c) 2006-2008 Emmanuel Okyere
           |
           |""".stripMargin
-    }        
+    }
+    
+    val jatran = new Jatran()
 
     Options.parseOrHelp(argv) { cmd =>
       if(cmd(Options.help)) {
@@ -40,9 +42,9 @@ object Main extends Main {
       
       (cmd(Options.input), cmd(Options.output)) match {
         case (Some(i), Some(o)) =>
-          transform(i, o, false)
+          jatran.transform(i, o, false)
         case (Some(i), None) =>
-          transform(i, "jatran-out", false)
+          jatran.transform(i, "jatran-out", false)
         case _ =>
           Options.showHelp(System.out)
       }
@@ -50,7 +52,7 @@ object Main extends Main {
   }
 }
 
-class Main {
+class Jatran {
   def transform(src:String, out:String, untyped:Boolean) {
     transform(new File(src), out, untyped)
   }

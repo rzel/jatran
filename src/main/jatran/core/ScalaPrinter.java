@@ -346,10 +346,15 @@ public class ScalaPrinter extends SourcePrinter {
         printSemi(parent);
     }
     
-    @Override protected void printStatementList(final AST ast) {
+    @Override protected void printStatementList(final AST slist) {
+        List<AST> xs = getChildren(slist, ALL);
         startBlock();
-        if (printChildren(ast, "\n"))
+        //if (printChildren(ast, "\n"))
+        //    ; //br();
+        for (AST x : xs) {
+            print(x);
             br();
+        }
         endBlock();
     }
 
@@ -453,13 +458,13 @@ public class ScalaPrinter extends SourcePrinter {
                 body = getChild(ast, EXPR);
         }
 
-        if (foreach != null) {
+        if (null != foreach) {
             print("for (");
             print(foreach);
             print(") ");
         } else {
-			br();
-			startBlock();
+            br();
+            startBlock();
             print(getChild(ast, FOR_INIT));
             br();
             print("while (");
@@ -479,11 +484,12 @@ public class ScalaPrinter extends SourcePrinter {
             }
             
             startBlock();
-            for (AST s : slist)
+            for (AST s : slist) {
                 print(s);
-            br();
+                br();
+            }
+            //br();
             print(getChild(ast, FOR_ITERATOR));
-            br();
             endBlock();
         } else
             printIndented(body);
@@ -575,7 +581,6 @@ public class ScalaPrinter extends SourcePrinter {
         printEmptyStatement();
     }
 
-    // TODO: allow config to be passed from commandline
     @Override
     protected void printEmptyStatement() {}
 
@@ -636,7 +641,7 @@ public class ScalaPrinter extends SourcePrinter {
             print(" = null");
         else
             print(assign);
-
+        
         //printSemi(parent);
     }
 
@@ -653,21 +658,21 @@ public class ScalaPrinter extends SourcePrinter {
             print(" = ");
             print(child2);
             
-            if (!("(".equals(child2.getText().trim())))
-                br();
+            //    if (!("(".equals(child2.getText().trim())))
+            //   br();
         } else {
             print(" = ");
             print(child1);
-            br();
+            //br();
         }
     }
 
-	@Override
-	protected void printArrayInitialization(final AST ast) {
-            print("(");
-            printExpressionList(ast);
-            print(")");
-	}
+    @Override
+    protected void printArrayInitialization(final AST ast) {
+        print("(");
+        printExpressionList(ast);
+        print(")");
+    }
 
 	// nts: TYPE has exactly one child.
 	@Override

@@ -392,7 +392,6 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 			case SUPER_CTOR_CALL:
 				printSuperConstructorCall(ast); break;
 
-			//TODO: handle ctor calls
 			case CTOR_CALL:
 				printConstructorCall(ast); break;
 
@@ -673,10 +672,10 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	 *  Starts a block by decreasing the indent level and printing "}"
 	 */
 	protected void endBlock() {
-		if (!brApplied)
-			br();
-		out.decreaseIndent();
-		print("}");
+            if (!brApplied)
+            	br();
+            out.decreaseIndent();
+            print("}");
 	}
 
 	protected void print(final String s) {

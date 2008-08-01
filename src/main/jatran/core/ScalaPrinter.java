@@ -458,6 +458,8 @@ public class ScalaPrinter extends SourcePrinter {
             print(foreach);
             print(") ");
         } else {
+			br();
+			startBlock();
             print(getChild(ast, FOR_INIT));
             br();
             print("while (");
@@ -485,6 +487,12 @@ public class ScalaPrinter extends SourcePrinter {
             endBlock();
         } else
             printIndented(body);
+			
+        if (null == foreach) {
+            br();
+            endBlock();
+            br();
+        }
     }
 
     /**

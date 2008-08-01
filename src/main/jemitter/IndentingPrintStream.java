@@ -46,6 +46,10 @@ public class IndentingPrintStream extends PrintStream {
 	public void decreaseIndent() {
 		depth--;
 	}
+    
+    public int indent() {
+        return depth;
+    }
 
 	public void print(Object o) {
 		if (null == o)

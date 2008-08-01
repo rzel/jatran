@@ -8,33 +8,33 @@ import javax.imageio.ImageWriter
 import javax.imageio.event.IIOWriteProgressListener
 
 class FooImplMultipleInterfaces extends Iterable[String] with IIOWriteProgressListener with ItemListener {
-  	def iterator():Iterator[String] = {
-		null
-	}
+  def iterator():Iterator[String] = {
+    return null
+  }
 
-	def itemStateChanged(e:ItemEvent):Unit = {
-	}
+  def itemStateChanged(e:ItemEvent):Unit = {
+  }
 
-	def imageComplete(source:ImageWriter):Unit = {
-	}
+  def imageComplete(source:ImageWriter):Unit = {
+  }
+  
+  def imageProgress(source:ImageWriter, percentageDone:float):Unit = {
+  }
 
-	def imageProgress(source:ImageWriter, percentageDone:float):Unit = {
-	}
+  def imageStarted(source:ImageWriter, imageIndex:Int):Unit = {
+  }
 
-	def imageStarted(source:ImageWriter, imageIndex:Int):Unit = {
-	}
+  def thumbnailComplete(source:ImageWriter):Unit = {
+  }
 
-	def thumbnailComplete(source:ImageWriter):Unit = {
-	}
+  def thumbnailProgress(source:ImageWriter, percentageDone:float):Unit = {
+  }
 
-	def thumbnailProgress(source:ImageWriter, percentageDone:float):Unit = {
-	}
+  def thumbnailStarted(source:ImageWriter, imageIndex:Int, thumbnailIndex:Int):Unit = {
+  }
 
-	def thumbnailStarted(source:ImageWriter, imageIndex:Int, thumbnailIndex:Int):Unit = {
-	}
-
-	def writeAborted(source:ImageWriter):Unit = {
-	}
+  def writeAborted(source:ImageWriter):Unit = {
+  }
 }
 
 

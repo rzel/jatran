@@ -32,7 +32,7 @@ class ScalaPrinterTest extends  TestNGSuite {
   @Test def fooIsAFile {
     test("Foo.scala")
   }
-  
+
   @Test def staticMembersAreChangedToMembersOfCompanionObject {
     test("StaticMembersToCompanionObject.scala")
   }
@@ -41,6 +41,10 @@ class ScalaPrinterTest extends  TestNGSuite {
     test("ForLoopsChangeToWhileLoops.scala")
   }
   
+  @Test def testReturnExpressions {
+    test("ReturnExpressions.scala")
+  }
+
   @Test def helloWorldApplication {
     test("HelloWorldApplication.scala")
   }

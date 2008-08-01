@@ -6,7 +6,7 @@ class ReturnStatementPatterns {
   }
 
   def bar():Int = {
-    1
+    return 1
   }
 
 }

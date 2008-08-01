@@ -67,7 +67,7 @@ class FileDiff {
       buf.append(",").append(1 + end)
     }
 
-    buf.toString()
+    return buf.toString()
   }
 
   private def read(file:File):Array[String] = {
@@ -78,12 +78,12 @@ class FileDiff {
       while ((in = br.readLine()) != null) {
         contents.add(in)
       }
-      contents.toArray(new Array[String]())
+      return contents.toArray(new Array[String]())
     } catch {
       case e:Exception =>
         System.err.println("error reading " + file.getName() + ": " + e)
         System.exit(1)
-        null
+        return null
     }
   }
 }

@@ -279,7 +279,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				printMethodCall(child1, child2); break;
 
 			case LITERAL_return:
-				printReturn(child1); break;
+                            printReturn(child1, child2); break;
 
 			case INSTANCE_INIT:
 				printInstanceInit(child1); break;
@@ -573,7 +573,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 	protected void printInstanceInit(final AST child1) {}
 
-	protected void printReturn(final AST child1) {}
+    protected void printReturn(final AST child1, final AST child2) {}
 
 	protected void printMethodCall(final AST child1, final AST child2) {}
 
@@ -697,13 +697,13 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	 * @returns a child AST of the given type. If it can't find a child of the given type, return null.
 	 */
 	protected AST getChild(final AST ast, final int type) {
-		AST child = ast.getFirstChild();
-		while (child != null) {
-			if (child.getType() == type)
-				return child;
-			child = child.getNextSibling();
-		}
-		return null;
+            AST child = ast.getFirstChild();
+            while (child != null) {
+                if (ALL == type || child.getType() == type)
+                    return child;
+                child = child.getNextSibling();
+            }
+            return null;
 	}
 
 

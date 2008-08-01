@@ -452,9 +452,16 @@ public class ScalaPrinter extends SourcePrinter {
         if (null != foreach)
             body = foreach.getNextSibling();
         else {
+            //TODO: pick all children into a list, and remove children that are already rendered
+            // whatever is left is the body
             body = getChild(ast, SLIST);
             if (null == body)
-                body = getChild(ast, EXPR);
+                body = getChild(ast, LITERAL_if);
+            if (null == body)
+               body = getChild(ast, EXPR);
+            //if (null == body)
+            //    debug(ast);
+            //body = getChild(ast, ALL);
         }
 
         if (null != foreach) {
@@ -526,8 +533,10 @@ public class ScalaPrinter extends SourcePrinter {
 
     @Override
     protected void printContinueBreak(final AST ast) {
-        if (ast.getType() == LITERAL_break)
+        if (ast.getType() == LITERAL_break) {
+            print("error(\"break\")");
             return;
+        }
         printASTName(ast);
         printEmptyStatement();
     }
@@ -780,14 +789,33 @@ public class ScalaPrinter extends SourcePrinter {
             endBlock();
 	}
 
-	@Override
-	protected void printReturn(final AST child1) {
-            if (null == child1)
-                print("return");
-            else
-                print(child1);
-            printEmptyStatement();
-	}
+    /**
+     * A return expression return e must occur inside the body of some enclosing named 
+     * method or function. The innermost enclosing named method or function in a 
+     * source program, f , must have an explicitly declared result type, and the type of e 
+     * must conform to it. The return expression evaluates the expression e and returns its 
+     * value as the result of f . The evaluation of any statements or expressions following 
+     * the return expression is omitted. The type of a return expression is scala.Nothing. 
+     */
+    @Override
+    protected void printReturn(final AST child1, final AST child2) {
+        /*if (null == child1)
+            print("return");
+        else {
+            if (null != child2 || out.indent() > 0) //HACK: fix this per the return expressions spec
+                print("return ");
+            print(child1);
+        }
+        //printEmptyStatement();*/
+        
+        if (null == child1)
+            print("return");
+        else {
+            print("return ");
+            print(child1);
+        }
+        
+    }
 
 	@Override
 	protected void printMethodCall(final AST child1, final AST child2) {
@@ -864,7 +892,7 @@ public class ScalaPrinter extends SourcePrinter {
             TOKEN_NAMES[LITERAL_package] = "package";
             TOKEN_NAMES[LITERAL_import] = "import";
             TOKEN_NAMES[LITERAL_void] = "Unit";
-            TOKEN_NAMES[LITERAL_boolean] = "boolean";
+            TOKEN_NAMES[LITERAL_boolean] = "Boolean";
             TOKEN_NAMES[LITERAL_byte] = "byte";
             TOKEN_NAMES[LITERAL_char] = "char";
             TOKEN_NAMES[LITERAL_short] = "short";

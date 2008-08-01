@@ -27,7 +27,7 @@ class AStrutsAction extends BaseAction {
       locale = new Locale("en")
     }
     var calendar:Calendar = Calendar.getInstance()
-    var dateIsNow:boolean = true
+    var dateIsNow:Boolean = true
     if (!GenericValidator.isBlankOrNull(totalsHourlyForm.getDate())) {
       try {
         var date:Date = DateUtil.parseDate(totalsHourlyForm.getDate(), locale)
@@ -69,7 +69,7 @@ class AStrutsAction extends BaseAction {
     request.setAttribute("maxUnique", new Integer(maxUnique))
     var date:Date = calendar.getTime()
     request.setAttribute("date", date)
-    mapping.findForward("showTotalsHourly")
+    return mapping.findForward("showTotalsHourly")
   }
 
 }

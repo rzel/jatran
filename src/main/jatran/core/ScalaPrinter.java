@@ -202,7 +202,6 @@ public class ScalaPrinter extends SourcePrinter {
         
         if (0 < modifiers.size())
             for (AST m : modifiers) {
-                err.println(">>>>>>>>>>>>> the modifier is: " + m.getType() + ", " + m.getText());
                 switch (m.getType()) {
                 case LITERAL_public:
                 case LITERAL_static:

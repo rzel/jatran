@@ -533,9 +533,10 @@ public class ScalaPrinter extends SourcePrinter {
     }
 
     @Override
-    protected void printContinueBreak(final AST ast) {
+        protected void printContinueBreak(final AST ast, boolean notCaseGroup) {
         if (ast.getType() == LITERAL_break) {
-            print("error(\"break\")");
+            if (notCaseGroup)
+                print("error(\"break\")");
             return;
         }
         printASTName(ast);

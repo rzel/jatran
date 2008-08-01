@@ -201,21 +201,21 @@ public class ScalaPrinter extends SourcePrinter {
         print(getChild(ast, LITERAL_throws));
         
         if (0 < modifiers.size())
-            for (AST m : modifiers)
+            for (AST m : modifiers) {
+                err.println(">>>>>>>>>>>>> the modifier is: " + m.getType() + ", " + m.getText());
                 switch (m.getType()) {
                 case LITERAL_public:
                 case LITERAL_static:
                 case LITERAL_synchronized:
                     break;
-                case LITERAL_transient:
-                case LITERAL_volatile:
-                case LITERAL_native:
-                    print("@");
+                    /* case LITERAL_transient:
+                       case LITERAL_volatile:
+                       case LITERAL_native:*/
                 default:
                     print(m);
                     print(" ");
                 }
-        
+            }
         AST ident = getChild(ast, IDENT);
         AST body = getChild(ast, SLIST);
         
@@ -418,10 +418,11 @@ public class ScalaPrinter extends SourcePrinter {
         indentedSlist(slist);
     }
 
-    private void indentedSlist(List<AST> slist) {
+    private void indentedSlist(List<AST> xs) {
         startIndent();
-        for (AST s : slist) {
-            print(s);
+        for (AST x : xs) {
+            print(x);
+            br();
         }
         closeIndent();
     }
@@ -904,11 +905,11 @@ public class ScalaPrinter extends SourcePrinter {
             TOKEN_NAMES[LITERAL_public] = "public";
             TOKEN_NAMES[LITERAL_protected] = "protected";
             TOKEN_NAMES[LITERAL_static] = "static";
-            TOKEN_NAMES[LITERAL_transient] = "transient";
-            TOKEN_NAMES[LITERAL_native] = "native";
+            TOKEN_NAMES[LITERAL_transient] = "@transient";
+            TOKEN_NAMES[LITERAL_native] = "@native";
             TOKEN_NAMES[LITERAL_threadsafe] = "threadsafe";
             TOKEN_NAMES[LITERAL_synchronized] = "synchronized";
-            TOKEN_NAMES[LITERAL_volatile] = "volatile";
+            TOKEN_NAMES[LITERAL_volatile] = "@volatile";
             TOKEN_NAMES[LITERAL_class] = "class";
             TOKEN_NAMES[LITERAL_extends] = "extends";
             TOKEN_NAMES[LITERAL_interface] = "interface";

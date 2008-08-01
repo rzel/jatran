@@ -47,19 +47,23 @@ class AStrutsAction extends BaseAction {
     var hours:List = statisticsManager.getTotalsHourly(year, month, day)
     var maxTotal:Int = 1
     var maxUnique:Int = 1
-    var i:Iterator = hours.iterator()
-    while (i.hasNext()) {
-      var hourDescr:Array[Object] = i.next().asInstanceOf[Array[Object]] 
-      var total:Integer = hourDescr(1).asInstanceOf[Integer] 
-      var unique:Integer = hourDescr(2).asInstanceOf[Integer] 
-      if (total.intValue() > maxTotal) {
-        maxTotal = total.intValue()
+    
+    {
+      var i:Iterator = hours.iterator()
+      while (i.hasNext()) {
+        var hourDescr:Array[Object] = i.next().asInstanceOf[Array[Object]] 
+        var total:Integer = hourDescr(1).asInstanceOf[Integer] 
+        var unique:Integer = hourDescr(2).asInstanceOf[Integer] 
+        if (total.intValue() > maxTotal) {
+          maxTotal = total.intValue()
+        }
+        if (unique.intValue() > maxUnique) {
+          maxUnique = unique.intValue()
+        }
+        
       }
-      if (unique.intValue() > maxUnique) {
-        maxUnique = unique.intValue()
-      }
-
     }
+
     request.setAttribute("hours", hours)
     request.setAttribute("maxTotal", new Integer(maxTotal))
     request.setAttribute("maxUnique", new Integer(maxUnique))

@@ -47,11 +47,15 @@ class FileDiff {
   */
    
   protected def printLines(start:Int, end:Int, ind:String, lines:Array[String]):Unit = {
-    var lnum:Int = start
-    while (lnum <= end) {
-      System.out.println(ind + " " + lines(lnum))
-      lnum = lnum + 1
+    
+    {
+      var lnum:Int = start
+      while (lnum <= end) {
+        System.out.println(ind + " " + lines(lnum))
+        lnum = lnum + 1
+      }
     }
+
   }
 
   protected def toString(start:Int, end:Int):String = {

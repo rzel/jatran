@@ -112,13 +112,16 @@ class DiffTest extends  TestNGSuite {
     val lcses:Array[Integer] = diff.getLongestCommonSubsequences()
  
     assertEquals("length of output", expected.length, lcses.length)
-    var ei:int = 0
+    
+    {
+      var ei:int = 0
 
-    while (ei < expected.length) {
-      val exp:Integer = expected(ei)
-      val lcs:Integer = lcses(ei)
-      assertEquals("expected[" + ei + "]", exp, lcs)
-      ei = ei + 1
+      while (ei < expected.length) {
+        val exp:Integer = expected(ei)
+        val lcs:Integer = lcses(ei)
+        assertEquals("expected[" + ei + "]", exp, lcs)
+        ei = ei + 1
+      }
     }
   }
 
@@ -132,13 +135,15 @@ class DiffTest extends  TestNGSuite {
 
     assertEquals("length of output", expected.length, diffOut.size())
     
-    var ei:int = 0
+    {
+      var ei:int = 0
 
-    while (ei < expected.length) {
-      val d = diffOut.get(ei)
-      val exp:Difference = expected(ei)
-      assertEquals("expected[" + ei + "]", exp, d)
-      ei = ei + 1
+      while (ei < expected.length) {
+        val d = diffOut.get(ei)
+        val exp:Difference = expected(ei)
+        assertEquals("expected[" + ei + "]", exp, d)
+        ei = ei + 1
+      }
     }
   }
 

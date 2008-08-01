@@ -346,7 +346,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 			case LITERAL_continue:
 			case LITERAL_break:
-				printContinueBreak(ast); break;
+                            printContinueBreak(ast, (parent.getType() != CASE_GROUP && parent.getType() != LITERAL_default)); break;
 
 			case INDEX_OP:
 				printIndexOperator(child1, child2); break;
@@ -557,7 +557,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 	protected void printIndexOperator(final AST child1, final AST child2) {}
 
-	protected void printContinueBreak(final AST ast) {}
+    protected void printContinueBreak(final AST ast, boolean notCaseGroup) {}
 
 	protected void printDefaultCase(final AST child1) {}
 

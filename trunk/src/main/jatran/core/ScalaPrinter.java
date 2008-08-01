@@ -448,7 +448,6 @@ public class ScalaPrinter extends SourcePrinter {
         AST foreach = getChild(ast, FOR_EACH_CLAUSE);
         
         AST body;
-        List<AST> slist;
         
         if (null != foreach)
             body = foreach.getNextSibling();
@@ -476,6 +475,8 @@ public class ScalaPrinter extends SourcePrinter {
             print("{}");
             br();
         } else if (null == foreach) {
+            List<AST> slist;
+
             if (body.getType() == SLIST)
                 slist = getChildren(body, ALL);
             else {
@@ -488,7 +489,6 @@ public class ScalaPrinter extends SourcePrinter {
                 print(s);
                 br();
             }
-            //br();
             print(getChild(ast, FOR_ITERATOR));
             endBlock();
         } else

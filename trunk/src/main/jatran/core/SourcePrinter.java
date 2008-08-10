@@ -219,6 +219,8 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				break;
 
 			case VARIABLE_PARAMETER_DEF:
+                            printVariableParamDef(ast); break;
+
 			case ENUM_DEF:
 			case ENUM_CONSTANT_DEF:
 			case TRIPLE_DOT:
@@ -279,6 +281,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 				printMethodCall(child1, child2); break;
 
 			case LITERAL_return:
+                            //TODO: figure if this is the last statement in a method
                             printReturn(child1, child2); break;
 
 			case INSTANCE_INIT:
@@ -517,255 +520,257 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 			print(")");
 	}
 
-	protected void printImport(final AST ast) {}
+    protected void printImport(final AST ast) {}
+    
+    protected void printRoot(final AST ast) {}
 
-	protected void printRoot(final AST ast) {}
+    protected void printDefinition(final AST ast, final AST parent) {}
 
-	protected void printDefinition(final AST ast, final AST parent) {}
+    protected void printMethodDefinition(final AST ast) {}
 
-	protected void printMethodDefinition(final AST ast) {}
-
-	protected void printObjectBlock(final AST ast) {}
-
-	protected void printSuperConstructorCall(final AST ast) {}
-	
-	protected void printConstructorCall(final AST ast) {}
-
-	protected void printClassLiteral() {}
-
-	protected void printTrinaryOp(final AST child1, final AST child2, final AST child3) {}
-
-	protected void printThrow(final AST child1) {}
-
-	protected void printFinally(final AST child1, final AST child2) {}
-
-	protected void printCatch(final AST child1, final AST child2) {}
-
-	protected void printTry(final AST ast, final AST child1) {}
-
-	protected void printDoLoop(final AST child1, final AST child2) {}
-
-	protected void printWhileLoop(final AST child1, final AST child2) {}
-
-	protected void printIfStatement(final AST condition, final AST thenClause, final AST elseClause) {}
-
-	protected void printThrows(final AST ast) {}
-
-	protected void printStar(final AST ast) {}
-
-	protected void printEmptyStatement() {}
-
-	protected void printIndexOperator(final AST child1, final AST child2) {}
-
+    protected void printObjectBlock(final AST ast) {}
+    
+    protected void printSuperConstructorCall(final AST ast) {}
+    
+    protected void printConstructorCall(final AST ast) {}
+    
+    protected void printClassLiteral() {}
+    
+    protected void printTrinaryOp(final AST child1, final AST child2, final AST child3) {}
+    
+    protected void printThrow(final AST child1) {}
+    
+    protected void printFinally(final AST child1, final AST child2) {}
+    
+    protected void printCatch(final AST child1, final AST child2) {}
+    
+    protected void printTry(final AST ast, final AST child1) {}
+    
+    protected void printDoLoop(final AST child1, final AST child2) {}
+    
+    protected void printWhileLoop(final AST child1, final AST child2) {}
+    
+    protected void printIfStatement(final AST condition, final AST thenClause, final AST elseClause) {}
+    
+    protected void printThrows(final AST ast) {}
+    
+    protected void printStar(final AST ast) {}
+    
+    protected void printEmptyStatement() {}
+    
+    protected void printIndexOperator(final AST child1, final AST child2) {}
+    
     protected void printContinueBreak(final AST ast, boolean notCaseGroup) {}
+    
+    protected void printDefaultCase(final AST child1) {}
+    
+    protected void printCaseExpression(final AST child1) {}
+    
+    protected void printCaseGroup(final AST ast) {}
 
-	protected void printDefaultCase(final AST child1) {}
-
-	protected void printCaseExpression(final AST child1) {}
-
-	protected void printCaseGroup(final AST ast) {}
-
-	protected void printSwitch(final AST ast, final AST child1) {}
-
-	protected void printTypeCast(final AST child1, final AST child2) {}
-
-	protected void printStaticInit(final AST child1) {}
-
-	protected void printInstanceInit(final AST child1) {}
-
+    protected void printSwitch(final AST ast, final AST child1) {}
+    
+    protected void printTypeCast(final AST child1, final AST child2) {}
+    
+    protected void printStaticInit(final AST child1) {}
+    
+    protected void printInstanceInit(final AST child1) {}
+    
     protected void printReturn(final AST child1, final AST child2) {}
+    
+    protected void printMethodCall(final AST child1, final AST child2) {}
+    
+    protected void printNew(final AST child1, final AST child2, final AST child3) {}
+    
+    protected void printUnary(final AST ast, final AST child1) {}
+    
+    protected void printExpressionList(final AST ast) {}
+    
+    protected void printForLoop(final AST ast) {}
+    
+    protected void printStatementList(final AST ast) {}
+    
+    protected void printArrayInitialization(final AST ast) {}
+    
+    protected void printExpression(final AST parent, final AST child1) {}
+    
+    protected void printAssignment(final AST child1, final AST child2) {}
+    
+    protected void printArrayDeclarator(final AST child1) {}
+    
+    protected void printType(final AST ast) {}
+    
+    protected void printVariableDef(final AST ast, final AST parent) {}
+    
+    protected void printParamDef(final AST ast) {}
 
-	protected void printMethodCall(final AST child1, final AST child2) {}
+    protected void printVariableParamDef(final AST ast) {}
 
-	protected void printNew(final AST child1, final AST child2, final AST child3) {}
+    protected void printParameters(final AST ast) {}
 
-	protected void printUnary(final AST ast, final AST child1) {}
-
-	protected void printExpressionList(final AST ast) {}
-
-	protected void printForLoop(final AST ast) {}
-
-	protected void printStatementList(final AST ast) {}
-
-	protected void printArrayInitialization(final AST ast) {}
-
-	protected void printExpression(final AST parent, final AST child1) {}
-
-	protected void printAssignment(final AST child1, final AST child2) {}
-
-	protected void printArrayDeclarator(final AST child1) {}
-
-	protected void printType(final AST ast) {}
-
-	protected void printVariableDef(final AST ast, final AST parent) {}
-
-	protected void printParamDef(final AST ast) {}
-
-	protected void printParameters(final AST ast) {}
-
-	protected void printTypeArguments(final AST ast) {
-            printTypeArguments(getChildren(ast, TYPE_ARGUMENT)); 
-	}
+    protected void printTypeArguments(final AST ast) {
+        printTypeArguments(getChildren(ast, TYPE_ARGUMENT)); 
+    }
 	
-	protected void printTypeArguments(final List<AST> list) {}
+    protected void printTypeArguments(final List<AST> list) {}
+    
+    protected void printTypeParameters(final AST ast) {}
+    
+    protected void printImplementsClause(final AST ast) {}
+    
+    protected void printExtendsClause(final AST ast) {}
+    
+    protected void printModifiers(final AST ast) {}
+    
+    //TODO:retrieve name of dot, so we can for instance do System.out.println -> println
+    protected void printDot(final AST child1, final AST child2) {
+        print(child1);
+        print(".");
+        print(child2);
+    }
 
-	protected void printTypeParameters(final AST ast) {}
+    protected void printBinaryOperator(final AST ast) {
+        printWithParens(ast, ast.getFirstChild());
+        print(" " + name(ast) + " ");
+        printWithParens(ast, ast.getFirstChild().getNextSibling());
+    }
+    
+    protected void printASTName(final AST ast) {
+        print(name(ast));
+    }
+    
+    protected void printASTText(final AST ast) {
+        String s = ast.getText().trim();
+        if (!(null == KEYWORDS.get(s))) {
+            print("__kwd_" + s);
+            return;
+        }
 	
-	protected void printImplementsClause(final AST ast) {}
+        print(ast.getText());
+    }
+    
+    public void debug(final AST ast) {
+        debug(ast, 0);
+    }
+    
+    // A simple method to print out an AST as a tree:
+    public void debug(final AST t, final int level) {
+        if ( t==null )
+            return;
+        err.print("                                                                                             ".substring(0, level));
+        err.println("text:" + t.getText() + " type=" + t.getType());
+        AST child = t.getFirstChild();
+        debug(child, level+2);
+        AST next = t.getNextSibling();
+        debug(next, level);
+    }
+    
+    /**
+     *  Starts a block by printing "{" and increasing the indent level.
+     */
+    protected void startBlock() {
+        print("{");
+        startIndent();
+    }
+    
+    /**
+     *  Starts a block by decreasing the indent level and printing "}"
+     */
+    protected void endBlock() {
+        if (!brApplied)
+            br();
+        out.decreaseIndent();
+        print("}");
+    }
+    
+    protected void print(final String s) {
+        out.print(s);
+    }
+    
+    protected void br() {
+        br(1);
+    }
+    
+    protected void br(final int n) {
+        for (int i = 0; i < n; ++i)
+            out.println();
+        brApplied = true;
+    }
+    
+    /**
+     * Find a child of the given AST that has the given type
+     * @returns a child AST of the given type. If it can't find a child of the given type, return null.
+     */
+    protected AST getChild(final AST ast, final int type) {
+        AST child = ast.getFirstChild();
+        while (child != null) {
+            if (ALL == type || child.getType() == type)
+                return child;
+            child = child.getNextSibling();
+        }
+        return null;
+    }
+    
 
-	protected void printExtendsClause(final AST ast) {}
+    
+    protected List<AST> getChildren(final AST ast) {
+        return getChildren(ast, ALL);
+    }
+    
+    protected List<AST> getChildren(final AST ast, final int type) {
+        List<AST> list = new ArrayList<AST>();
+        
+        AST child = ast.getFirstChild();
+        while(child != null) {
+            if (ALL == type || child.getType() == type)
+                list.add(child);
+            child = child.getNextSibling();
+        }
+        
+        return list;
+    }
 
-	protected void printModifiers(final AST ast) {}
-
-	//TODO:retrieve name of dot, so we can for instance do System.out.println -> println
-	protected void printDot(final AST child1, final AST child2) {
-            print(child1);
-            print(".");
-            print(child2);
-	}
-
-	protected void printBinaryOperator(final AST ast) {
-            printWithParens(ast, ast.getFirstChild());
-            print(" " + name(ast) + " ");
-            printWithParens(ast, ast.getFirstChild().getNextSibling());
-	}
-
-	protected void printASTName(final AST ast) {
-            print(name(ast));
-	}
-
-	protected void printASTText(final AST ast) {
-		String s = ast.getText().trim();
-		if (!(null == KEYWORDS.get(s))) {
-			print("__kwd_" + s);
-			return;
-		}
-		
-		print(ast.getText());
-	}
-
-	public void debug(final AST ast) {
-		debug(ast, 0);
-	}
-
-	// A simple method to print out an AST as a tree:
-	public void debug(final AST t, final int level) {
-		if ( t==null )
-			return;
-		err.print("                                                                                             ".substring(0, level));
-		err.println("text:" + t.getText() + " type=" + t.getType());
-		AST child = t.getFirstChild();
-		debug(child, level+2);
-		AST next = t.getNextSibling();
-		debug(next, level);
-	}
-
-	/**
-	 *  Starts a block by printing "{" and increasing the indent level.
-	 */
-	protected void startBlock() {
-		print("{");
-		startIndent();
-	}
-
-	/**
-	 *  Starts a block by decreasing the indent level and printing "}"
-	 */
-	protected void endBlock() {
-            if (!brApplied)
-            	br();
-            out.decreaseIndent();
-            print("}");
-	}
-
-	protected void print(final String s) {
-		out.print(s);
-	}
-
-	protected void br() {
-		br(1);
-	}
-
-	protected void br(final int n) {
-		for (int i = 0; i < n; ++i)
-			out.println();
-		brApplied = true;
-	}
-
-	/**
-	 * Find a child of the given AST that has the given type
-	 * @returns a child AST of the given type. If it can't find a child of the given type, return null.
-	 */
-	protected AST getChild(final AST ast, final int type) {
-            AST child = ast.getFirstChild();
-            while (child != null) {
-                if (ALL == type || child.getType() == type)
-                    return child;
-                child = child.getNextSibling();
+    protected void print(final List<AST> list) {
+        int n = list.size();
+	
+        if (n > 0) {
+            for (AST ast : list.subList(0, 1))
+                print(ast);
+            
+            try {
+                for (AST ast : list.subList(1, n)) {
+                    br();
+                    print(ast);
+                }
+            } catch (IndexOutOfBoundsException e) {
+                //br();
             }
-            return null;
-	}
+        }
+    }
+    
+    protected void closeIndent(final AST ast) {
+        if (indentable(ast))
+            closeIndent();
+    }
+    
+    protected void closeIndent() {
+        out.decreaseIndent();
+        br();
+    }
+    
+    protected void startIndent(final AST ast) {
+        if (indentable(ast))
+            startIndent();
+    }
+    
+    protected void startIndent() {
+        br();
+        out.increaseIndent();
+    }
 
-
-
-	protected List<AST> getChildren(final AST ast) {
-		return getChildren(ast, ALL);
-	}
-
-	protected List<AST> getChildren(final AST ast, final int type) {
-		List<AST> list = new ArrayList<AST>();
-
-		AST child = ast.getFirstChild();
-		while(child != null) {
-			if (ALL == type || child.getType() == type)
-				list.add(child);
-			child = child.getNextSibling();
-		}
-
-		return list;
-	}
-
-	protected void print(final List<AST> list) {
-		int n = list.size();
-		
-		if (n > 0) {
-			for (AST ast : list.subList(0, 1))
-				print(ast);
-			
-			try {
-				for (AST ast : list.subList(1, n)) {
-					br();
-					print(ast);
-				}
-			} catch (IndexOutOfBoundsException e) {
-				//br();
-			}
-		}
-	}
-
-	protected void closeIndent(final AST ast) {
-		if (indentable(ast))
-			closeIndent();
-	}
-
-	protected void closeIndent() {
-		out.decreaseIndent();
-		br();
-	}
-
-	protected void startIndent(final AST ast) {
-		if (indentable(ast))
-			startIndent();
-	}
-
-	protected void startIndent() {
-		br();
-		out.increaseIndent();
-	}
-
-	protected boolean indentable(final AST ast) {
-		return !(null == ast || ast.getType() == SLIST); //|| ast.getType() == LITERAL_if
-	}
+    protected boolean indentable(final AST ast) {
+        return !(null == ast || ast.getType() == SLIST); //|| ast.getType() == LITERAL_if
+    }
 
 
     /**

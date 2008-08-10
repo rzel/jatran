@@ -262,6 +262,14 @@ public class ScalaPrinter extends SourcePrinter {
         print(":");
         print(getChild(ast, TYPE));
     }
+
+    @Override protected void printVariableParamDef(final AST ast) {
+        //print(getChild(ast, IDENT));
+        //print(":");
+        //print(getChild(ast, TYPE));
+        printParamDef(ast);
+        print("*");
+    }
     
     /**
      * @param ast  A Java 1.5 ANNOTATION AST node

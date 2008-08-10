@@ -61,36 +61,37 @@
 
 
     <target name="test:all" depends="compile">
-	    <!-- Delete the ${build} and ${dist} directory trees -->
-	    <java classname="org.scalatest.Runner" fork="true" failonerror="true">
-			<classpath refid="project.classpath"/>
-			<classpath refid="test.classpath" />			
-	        <arg value="-p"/>
-	        <arg value="build_tests"/>
+      <!-- Delete the ${build} and ${dist} directory trees -->
+      <java classname="org.scalatest.Runner" fork="true" failonerror="true">
+        <classpath refid="project.classpath"/>
+        <classpath refid="test.classpath" />			
+        <arg value="-p"/>
+        <arg value="build_tests"/>
 	
-	       <arg value="-g"/>
-	       <arg value="-o"/>
+        <arg value="-g"/>
+        <arg value="-o"/>
+        
+        <arg value="-s"/>
+        <arg value="org.scalatest.AllSuite"/>
+      </java>
+    </target>
 	
-	       <arg value="-s"/>
-	       <arg value="org.scalatest.AllSuite"/>
-	    </java>
-  	</target>
+    <target name="test" depends="compile:tests">
+      <mkdir dir="${test.dir}"/>
+      <property name="testng.verbose" value="false"/>
+      <property name="testng.quiet" value="true"/>
+      <property name="testng.debug" value="false"/>
+      <java classname="org.testng.TestNG" fork="yes" failonerror="yes">
+        <classpath refid="project.classpath"/>
+        <classpath refid="test.classpath" />
+        <classpath location="${build.dir}"/>
+        <jvmarg line="-ea" /> <!-- enable assertions -->
+        <arg line="testng.xml" />
+      </java>
+    </target>
 	
-	<target name="test" depends="compile:tests">
-		<mkdir dir="${test.dir}"/>
-		
-		<java classname="org.testng.TestNG" fork="yes" failonerror="yes">
-			<classpath refid="project.classpath"/>
-			<classpath refid="test.classpath" />
-			<classpath location="${build.dir}"/>
-			<jvmarg line="-ea" />
-			<arg line="testng.xml" />
-		</java>
-	</target>
-	
-	<target name="clean">
-		<delete dir="${build.dir}"/>
-		<delete dir="${dist.dir}"/>
-	</target>
-
+    <target name="clean">
+      <delete dir="${build.dir}"/>
+      <delete dir="${dist.dir}"/>
+    </target>
 </project>

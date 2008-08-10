@@ -86,13 +86,13 @@ class Jatran {
   }
   
   private def packageName(file:File):String = {
-    file.lines.toList.filter(line => null != line && line.trim.startsWith("package")) match {
-      case x :: xs =>
-        val s = x.trim
-        s.substring(7, s.length - 1).trim
-      case _ =>
-        ""
+    file.lines.foreach { line =>
+      val s = line.trim
+      if (s.startsWith("package"))
+        return s.substring(7, s.length - 1).trim
     }
+    
+    ""
   }
 
   private def getClassName(file:File):String = {

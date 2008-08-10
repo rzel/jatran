@@ -18,7 +18,7 @@ class FooImplMultipleInterfaces extends Iterable[String] with IIOWriteProgressLi
   def imageComplete(source:ImageWriter):Unit = {
   }
   
-  def imageProgress(source:ImageWriter, percentageDone:float):Unit = {
+  def imageProgress(source:ImageWriter, percentageDone:Float):Unit = {
   }
 
   def imageStarted(source:ImageWriter, imageIndex:Int):Unit = {
@@ -27,7 +27,7 @@ class FooImplMultipleInterfaces extends Iterable[String] with IIOWriteProgressLi
   def thumbnailComplete(source:ImageWriter):Unit = {
   }
 
-  def thumbnailProgress(source:ImageWriter, percentageDone:float):Unit = {
+  def thumbnailProgress(source:ImageWriter, percentageDone:Float):Unit = {
   }
 
   def thumbnailStarted(source:ImageWriter, imageIndex:Int, thumbnailIndex:Int):Unit = {

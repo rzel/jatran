@@ -1,7 +1,9 @@
 #!/bin/sh
 
-LIB_DIR="./lib"
-CP=".:./dist/jatran.jar"
+BASE=`dirname $0`
+LIB_DIR="$BASE/lib"
+DIST_DIR="$BASE/dist"
+CP=".:$DIST_DIR/jatran.jar"
 
 for i in `ls $LIB_DIR/*.jar`;
 do

@@ -222,7 +222,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 			case ENUM_DEF:
 			case ENUM_CONSTANT_DEF:
 			case TRIPLE_DOT:
-				 debug(ast); break; //TODO
+                            todo(ast); break;
 
 			case TYPE_PARAMETERS:
 				printTypeParameters(ast); break;
@@ -604,7 +604,7 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	protected void printParameters(final AST ast) {}
 
 	protected void printTypeArguments(final AST ast) {
-		printTypeArguments(getChildren(ast, TYPE_ARGUMENT)); 
+            printTypeArguments(getChildren(ast, TYPE_ARGUMENT)); 
 	}
 	
 	protected void printTypeArguments(final List<AST> list) {}
@@ -619,19 +619,19 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 
 	//TODO:retrieve name of dot, so we can for instance do System.out.println -> println
 	protected void printDot(final AST child1, final AST child2) {
-		print(child1);
-		print(".");
-		print(child2);
+            print(child1);
+            print(".");
+            print(child2);
 	}
 
 	protected void printBinaryOperator(final AST ast) {
-		printWithParens(ast, ast.getFirstChild());
-		print(" " + name(ast) + " ");
-		printWithParens(ast, ast.getFirstChild().getNextSibling());
+            printWithParens(ast, ast.getFirstChild());
+            print(" " + name(ast) + " ");
+            printWithParens(ast, ast.getFirstChild().getNextSibling());
 	}
 
 	protected void printASTName(final AST ast) {
-		print(name(ast));
+            print(name(ast));
 	}
 
 	protected void printASTText(final AST ast) {
@@ -768,189 +768,194 @@ public abstract class SourcePrinter implements JavaTokenTypes {
 	}
 
 
-	/**
-	 * Tells whether an AST has any children or not.
-	 * @returns true iff the AST has at least one child
-	 */
-	protected boolean hasChildren(final AST ast) {
-		return ast.getFirstChild() != null;
-	}
+    /**
+     * Tells whether an AST has any children or not.
+     * @returns true iff the AST has at least one child
+     */
+    protected boolean hasChildren(final AST ast) {
+        return ast.getFirstChild() != null;
+    }
 
-	protected String name(final AST ast) {
-		return name(ast.getType());
-	}
+    protected String name(final AST ast) {
+        return name(ast.getType());
+    }
 
-	protected String name(final int type) {
-		return TOKEN_NAMES[type];
-	}
+    protected String name(final int type) {
+        return TOKEN_NAMES[type];
+    }
 
-	// A Precendence table. Here are operator precendences (from java.g):
-	//    lowest  (13)  = *= /= %= += -= <<= >>= >>>= &= ^= |=
-	//            (12)  ?:
-	//            (11)  ||
-	//            (10)  &&
-	//            ( 9)  |
-	//            ( 8)  ^
-	//            ( 7)  &
-	//            ( 6)  == !=
-	//            ( 5)  < <= > >=
-	//            ( 4)  << >>
-	//            ( 3)  +(binary) -(binary)
-	//            ( 2)  * / %
-	//            ( 1)  ++ -- +(unary) -(unary)  ~  !  (type)
-	//                  []   () (method call)  . (dot -- identifier qualification)
-	//                  new   ()  (explicit parenthesis)
+    protected void todo(AST ast) {
+        err.println(">>>>>>>>>>>>>>>>>>>>>>  THIS IS NOT DONE!!");
+        debug(ast);
+    }
 
-	protected static int getPrecedence(final AST ast) {
-		if (null == ast)
-			return -2;
+    // A Precendence table. Here are operator precendences (from java.g):
+    //    lowest  (13)  = *= /= %= += -= <<= >>= >>>= &= ^= |=
+    //            (12)  ?:
+    //            (11)  ||
+    //            (10)  &&
+    //            ( 9)  |
+    //            ( 8)  ^
+    //            ( 7)  &
+    //            ( 6)  == !=
+    //            ( 5)  < <= > >=
+    //            ( 4)  << >>
+    //            ( 3)  +(binary) -(binary)
+    //            ( 2)  * / %
+    //            ( 1)  ++ -- +(unary) -(unary)  ~  !  (type)
+    //                  []   () (method call)  . (dot -- identifier qualification)
+    //                  new   ()  (explicit parenthesis)
+    
+    protected static int getPrecedence(final AST ast) {
+        if (null == ast)
+            return -2;
+        
+        switch (ast.getType()) {
+        case EXPR:
+            return getPrecedence(ast.getFirstChild());
+            
+        case ASSIGN:
+        case PLUS_ASSIGN:
+        case MINUS_ASSIGN:
+        case STAR_ASSIGN:
+        case DIV_ASSIGN:
+        case MOD_ASSIGN:
+        case SR_ASSIGN:
+        case BSR_ASSIGN:
+        case SL_ASSIGN:
+        case BAND_ASSIGN:
+        case BXOR_ASSIGN:
+        case BOR_ASSIGN:
+            return 13;
+            
+        case QUESTION:
+            return 12;
+        case LOR:
+            return 11;
+        case LAND:
+            return 10;
+        case BOR:
+            return 9;
+        case BXOR:
+            return 8;
+        case BAND:
+            return 7;
+            
+        case NOT_EQUAL:
+        case EQUAL:
+            return 6;
+            
+        case LT:
+        case GT:
+        case LE:
+        case GE:
+        case LITERAL_instanceof:
+            return 5;
+            
+        case SL:
+        case SR:
+        case BSR:	// not in chart above, but I would guess it goes here
+            return 4;
+            
+        case PLUS:
+        case MINUS:
+            return 3;
+            
+        case DIV:
+        case MOD:
+        case STAR:
+            return 2;
+            
+        case INC:
+        case DEC:
+        case POST_INC:
+        case POST_DEC:
+        case UNARY_PLUS:
+        case UNARY_MINUS:
+        case LNOT:
+        case BNOT:
+        case TYPE:
+            return 1;
+            
+        case METHOD_CALL:
+        case ARRAY_DECLARATOR:
+        case DOT:
+            return 0;
 
-		switch (ast.getType()) {
-			case EXPR:
-				return getPrecedence(ast.getFirstChild());
+        case LITERAL_new:
+            return -1;
+            
+        }
+        // for any non-operator, return a value which will cause it to NOT need parens.
+        return -2;
+    }
 
-			case ASSIGN:
-			case PLUS_ASSIGN:
-			case MINUS_ASSIGN:
-			case STAR_ASSIGN:
-			case DIV_ASSIGN:
-			case MOD_ASSIGN:
-			case SR_ASSIGN:
-			case BSR_ASSIGN:
-			case SL_ASSIGN:
-			case BAND_ASSIGN:
-			case BXOR_ASSIGN:
-			case BOR_ASSIGN:
-				return 13;
-
-			case QUESTION:
-				return 12;
-			case LOR:
-				return 11;
-			case LAND:
-				return 10;
-			case BOR:
-				return 9;
-			case BXOR:
-				return 8;
-			case BAND:
-				return 7;
-
-			case NOT_EQUAL:
-			case EQUAL:
-				return 6;
-
-			case LT:
-			case GT:
-			case LE:
-			case GE:
-			case LITERAL_instanceof:
-				return 5;
-
-			case SL:
-			case SR:
-			case BSR:	// not in chart above, but I would guess it goes here
-				return 4;
-
-			case PLUS:
-			case MINUS:
-				return 3;
-
-			case DIV:
-			case MOD:
-			case STAR:
-				return 2;
-
-			case INC:
-			case DEC:
-			case POST_INC:
-			case POST_DEC:
-			case UNARY_PLUS:
-			case UNARY_MINUS:
-			case LNOT:
-			case BNOT:
-			case TYPE:
-				return 1;
-
-			case METHOD_CALL:
-			case ARRAY_DECLARATOR:
-			case DOT:
-				return 0;
-
-			case LITERAL_new:
-				return -1;
-
-		}
-		// for any non-operator, return a value which will cause it to NOT need parens.
-		return -2;
-	}
-
-	protected void setupKeywords() {
-		KEYWORDS = new HashMap<String, Integer>();
-	}
-	
-	// Map each AST token type to a String
-	protected void setupTokenNames() {
-		if (null != TOKEN_NAMES)
-			return;
-
-		TOKEN_NAMES = new String[200];
-		for (int i=0; i<TOKEN_NAMES.length; i++)
-			TOKEN_NAMES[i] = "ERROR:" + i;
-
-		TOKEN_NAMES[POST_INC]="++";
-		TOKEN_NAMES[POST_DEC]="--";
-		TOKEN_NAMES[UNARY_MINUS]="-";
-		TOKEN_NAMES[UNARY_PLUS]="+";
-		TOKEN_NAMES[STAR]="*";
-		TOKEN_NAMES[ASSIGN]="=";
-		TOKEN_NAMES[PLUS_ASSIGN]="+=";
-		TOKEN_NAMES[MINUS_ASSIGN]="-=";
-		TOKEN_NAMES[STAR_ASSIGN]="*=";
-		TOKEN_NAMES[DIV_ASSIGN]="/=";
-		TOKEN_NAMES[MOD_ASSIGN]="%=";
-		TOKEN_NAMES[SR_ASSIGN]=">>=";
-		TOKEN_NAMES[BSR_ASSIGN]=">>>=";
-		TOKEN_NAMES[SL_ASSIGN]="<<=";
-		TOKEN_NAMES[BAND_ASSIGN]="&=";
-		TOKEN_NAMES[BXOR_ASSIGN]="^=";
-		TOKEN_NAMES[BOR_ASSIGN]="|=";
-		TOKEN_NAMES[QUESTION]="?";
-		TOKEN_NAMES[LOR]="||";
-		TOKEN_NAMES[LAND]="&&";
-		TOKEN_NAMES[BOR]="|";
-		TOKEN_NAMES[BXOR]="^";
-		TOKEN_NAMES[BAND]="&";
-		TOKEN_NAMES[NOT_EQUAL]="!=";
-		TOKEN_NAMES[EQUAL]="==";
-		TOKEN_NAMES[LT]="<";
-		TOKEN_NAMES[GT]=">";
-		TOKEN_NAMES[LE]="<=";
-		TOKEN_NAMES[GE]=">=";
-		TOKEN_NAMES[SL]="<<";
-		TOKEN_NAMES[SR]=">>";
-		TOKEN_NAMES[BSR]=">>>";
-		TOKEN_NAMES[PLUS]="+";
-		TOKEN_NAMES[MINUS]="-";
-		TOKEN_NAMES[DIV]="/";
-		TOKEN_NAMES[MOD]="%";
-		TOKEN_NAMES[INC]="++";
-		TOKEN_NAMES[DEC]="--";
-		TOKEN_NAMES[BNOT]="~";
-		TOKEN_NAMES[LNOT]="!";
-		TOKEN_NAMES[FINAL]="";
-	}
-
-	public final static int ROOT_ID = 0;
-
-	protected static int ALL = -1;
-	protected IndentingPrintStream out; //TODO: make dynamic
-	protected PrintStream err = System.out;
-	protected Stack<AST> stack = new Stack<AST>();
-	protected boolean untyped = false;
-
-	protected static String[] TOKEN_NAMES = null;
-	protected static Map<String, Integer> KEYWORDS = null;
-	protected int previousType = -1;
-	protected boolean brApplied = false;
+    protected void setupKeywords() {
+        KEYWORDS = new HashMap<String, Integer>();
+    }
+    
+    // Map each AST token type to a String
+    protected void setupTokenNames() {
+        if (null != TOKEN_NAMES)
+            return;
+        
+        TOKEN_NAMES = new String[200];
+        for (int i=0; i<TOKEN_NAMES.length; i++)
+            TOKEN_NAMES[i] = "ERROR:" + i;
+        
+        TOKEN_NAMES[POST_INC]="++";
+        TOKEN_NAMES[POST_DEC]="--";
+        TOKEN_NAMES[UNARY_MINUS]="-";
+        TOKEN_NAMES[UNARY_PLUS]="+";
+        TOKEN_NAMES[STAR]="*";
+        TOKEN_NAMES[ASSIGN]="=";
+        TOKEN_NAMES[PLUS_ASSIGN]="+=";
+        TOKEN_NAMES[MINUS_ASSIGN]="-=";
+        TOKEN_NAMES[STAR_ASSIGN]="*=";
+        TOKEN_NAMES[DIV_ASSIGN]="/=";
+        TOKEN_NAMES[MOD_ASSIGN]="%=";
+        TOKEN_NAMES[SR_ASSIGN]=">>=";
+        TOKEN_NAMES[BSR_ASSIGN]=">>>=";
+        TOKEN_NAMES[SL_ASSIGN]="<<=";
+        TOKEN_NAMES[BAND_ASSIGN]="&=";
+        TOKEN_NAMES[BXOR_ASSIGN]="^=";
+        TOKEN_NAMES[BOR_ASSIGN]="|=";
+        TOKEN_NAMES[QUESTION]="?";
+        TOKEN_NAMES[LOR]="||";
+        TOKEN_NAMES[LAND]="&&";
+        TOKEN_NAMES[BOR]="|";
+        TOKEN_NAMES[BXOR]="^";
+        TOKEN_NAMES[BAND]="&";
+        TOKEN_NAMES[NOT_EQUAL]="!=";
+        TOKEN_NAMES[EQUAL]="==";
+        TOKEN_NAMES[LT]="<";
+        TOKEN_NAMES[GT]=">";
+        TOKEN_NAMES[LE]="<=";
+        TOKEN_NAMES[GE]=">=";
+        TOKEN_NAMES[SL]="<<";
+        TOKEN_NAMES[SR]=">>";
+        TOKEN_NAMES[BSR]=">>>";
+        TOKEN_NAMES[PLUS]="+";
+        TOKEN_NAMES[MINUS]="-";
+        TOKEN_NAMES[DIV]="/";
+        TOKEN_NAMES[MOD]="%";
+        TOKEN_NAMES[INC]="++";
+        TOKEN_NAMES[DEC]="--";
+        TOKEN_NAMES[BNOT]="~";
+        TOKEN_NAMES[LNOT]="!";
+        TOKEN_NAMES[FINAL]="";
+    }
+    
+    public final static int ROOT_ID = 0;
+    
+    protected static int ALL = -1;
+    protected IndentingPrintStream out; //TODO: make dynamic
+    protected PrintStream err = System.out;
+    protected Stack<AST> stack = new Stack<AST>();
+    protected boolean untyped = false;
+    
+    protected static String[] TOKEN_NAMES = null;
+    protected static Map<String, Integer> KEYWORDS = null;
+    protected int previousType = -1;
+    protected boolean brApplied = false;
 }

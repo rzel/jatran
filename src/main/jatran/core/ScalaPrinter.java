@@ -207,9 +207,6 @@ public class ScalaPrinter extends SourcePrinter {
                 case LITERAL_static:
                 case LITERAL_synchronized:
                     break;
-                    /* case LITERAL_transient:
-                       case LITERAL_volatile:
-                       case LITERAL_native:*/
                 default:
                     print(m);
                     print(" ");
@@ -222,23 +219,18 @@ public class ScalaPrinter extends SourcePrinter {
         print(ident);
         print(getChild(ast, PARAMETERS));
         
-        // TODO: if type is unit, ():unit = { -> () {
         if (!(ast.getType() == CTOR_DEF)) {
-            //			if (!getChild(ast, TYPE).getFirstChild().getText().equals("void")) {
             print(":");
             print(getChild(ast, TYPE));
-            //			}
         }
         
         if (isClass) {
-            //if (!(ast.getType() == CTOR_DEF) && !getChild(ast, TYPE).getFirstChild().getText().equals("void"))
-            print(" ="); // TODO: move this up so if non unit, we'll print = {} else () {}
+            print(" =");
             if (hasModifier(ast, LITERAL_synchronized))
                 print(" synchronized");
             if (null == body) {
                 print(" {}");
                 br();
-                // print("**/");
             } else {
                 print(" ");
                 print(body);
@@ -898,13 +890,13 @@ public class ScalaPrinter extends SourcePrinter {
             TOKEN_NAMES[LITERAL_char] = "char";
             TOKEN_NAMES[LITERAL_short] = "short";
             TOKEN_NAMES[LITERAL_int] = "Int";
-            TOKEN_NAMES[LITERAL_float] = "float";
+            TOKEN_NAMES[LITERAL_float] = "Float";
             TOKEN_NAMES[LITERAL_long] = "Long";
             TOKEN_NAMES[LITERAL_double] = "Double";
             TOKEN_NAMES[LITERAL_private] = "private";
             TOKEN_NAMES[LITERAL_public] = "public";
             TOKEN_NAMES[LITERAL_protected] = "protected";
-            TOKEN_NAMES[LITERAL_static] = "static";
+            TOKEN_NAMES[LITERAL_static] = "error(static)";
             TOKEN_NAMES[LITERAL_transient] = "@transient";
             TOKEN_NAMES[LITERAL_native] = "@native";
             TOKEN_NAMES[LITERAL_threadsafe] = "threadsafe";
@@ -912,8 +904,8 @@ public class ScalaPrinter extends SourcePrinter {
             TOKEN_NAMES[LITERAL_volatile] = "@volatile";
             TOKEN_NAMES[LITERAL_class] = "class";
             TOKEN_NAMES[LITERAL_extends] = "extends";
-            TOKEN_NAMES[LITERAL_interface] = "interface";
-            TOKEN_NAMES[LITERAL_implements] = "implements";
+            TOKEN_NAMES[LITERAL_interface] = "error(interface)";
+            TOKEN_NAMES[LITERAL_implements] = "error(implements)";
             TOKEN_NAMES[LITERAL_throws] = "throws";
             TOKEN_NAMES[LITERAL_if] = "if";
             TOKEN_NAMES[LITERAL_else] = "else";
@@ -973,8 +965,7 @@ public class ScalaPrinter extends SourcePrinter {
 	}
 
 	// TODO: ctors
-	private void printScalaClassOrTrait(final AST ast, final AST obj,
-                                            final List<AST> imethods, final List<AST> ivars) {
+	private void printScalaClassOrTrait(final AST ast, final AST obj, final List<AST> imethods, final List<AST> ivars) {
             print(isClass ? "class " : "trait ");
             print(getChild(ast, IDENT));
             
